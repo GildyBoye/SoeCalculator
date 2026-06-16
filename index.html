@@ -317,7 +317,7 @@ footer {
         meleeWeapons: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical damage ": { "value": 0.05, "unit": "%", "min": 0 },
             "Elemental damage ": { "value": 0.03, "unit": "%", "min": 0 },
             "Chance to deal Double damage": { "value": 0.01, "unit": "%", "min": 0 },
@@ -330,7 +330,7 @@ footer {
         distanceWeapons: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical damage ": { "value": 0.05, "unit": "%", "min": 0 },
             "Elemental damage ": { "value": 0.03, "unit": "%", "min": 0 },
             "Energy damage ": { "value": 0.05, "unit": "%", "min": 0 },
@@ -345,7 +345,7 @@ footer {
         wands: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical damage ": { "value": 0.05, "unit": "%", "min": 0 },
             "Elemental damage ": { "value": 0.03, "unit": "%", "min": 0 },
             "Energy damage ": { "value": 0.05, "unit": "%", "min": 0 },
@@ -362,7 +362,7 @@ footer {
         armours: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Elemental Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Energy Protection ": { "value": 0.02, "unit": "%", "min": 0 },
@@ -375,7 +375,7 @@ footer {
         boots: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Elemental Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Energy Protection ": { "value": 0.02, "unit": "%", "min": 0 },
@@ -389,7 +389,7 @@ footer {
         shields: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Physical Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Elemental Protection ": { "value": 0.01, "unit": "%", "min": 0 },
             "Energy Protection ": { "value": 0.02, "unit": "%", "min": 0 },
@@ -399,12 +399,13 @@ footer {
             "Holy Protection ": { "value": 0.02, "unit": "%", "min": 0 },
             "Death Protection ": { "value": 0.02, "unit": "%", "min": 0 },
             "Increased gold Drop ": { "value": 0.03, "unit": "%", "min": 0 },
-            "Increased Healing ": { "value": 0.028, "unit": "%", "min": 0 }
+            "Increased Healing ": { "value": 0.028, "unit": "%", "min": 0 },
+            "Shielding": { "value": 0.02, "unit": "", "min": 1 }
         },
         accessories: {
             "HP ": { "value": 0.0117, "unit": "%", "min": 0 },
             "MP ": { "value": 0.0205, "unit": "%", "min": 0 },
-            "Extra Experience ": { "value": 0.004286, "unit": "%", "min": 0 },
+            "Extra Experience ": { "value": 0.005, "unit": "%", "min": 0 },
             "Increased gold Drop ": { "value": 0.03, "unit": "%", "min": 0 },
             "Increased Healing ": { "value": 0.028, "unit": "%", "min": 0 },
             "Max HP Buff ": { "value": 0.02, "unit": "%", "min": 0 },
@@ -438,9 +439,14 @@ footer {
                 let minValue = Math.max(minVal, parseFloat((rate * 1).toFixed(2)));
                 let maxValue = Math.max(minVal, parseFloat((rate * itemLevel).toFixed(2)));
 
-                // Cap Extra Experience at 1.5%
+                // Cap Extra Experience at 1.5% (MAX_VALUE = 15, displayed as value/10)
                 if (attr === "Extra Experience ") {
                     maxValue = Math.min(maxValue, 1.5);
+                }
+
+                // Cap HP at 5.0% (MAX_VALUE = 50, displayed as value/10)
+                if (attr === "HP ") {
+                    maxValue = Math.min(maxValue, 5.0);
                 }
 
                 // Round to nearest integer for non-% attributes
