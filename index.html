@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Souls of Elysium — Calculators</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+:root {
+  --bg:       #0f0e0c;
+  --bg2:      #181612;
+  --bg3:      #211e18;
+  --panel:    #1a1814;
+  --border:   #332e22;
+  --border2:  #4a4232;
+  --gold:     #c8a84b;
+  --gold2:    #e2c96a;
+  --gold-dim: #7a6528;
+  --red:      #b03a3a;
+  --text:     #d4c89a;
+  --text-dim: #7a7060;
+  --text-faint:#3a3428;
+  --white:    #f0e8d0;
+  --header:   52px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh;}
+
+/* HEADER */
+header{
+  height:var(--header);
+  background:linear-gradient(180deg,#0a0908 0%,var(--bg2) 100%);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;flex-shrink:0;
+}
+header h1{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--gold);letter-spacing:.1em;}
+header h1 span{color:var(--text-dim);font-weight:400;font-size:.8rem;margin-left:8px;letter-spacing:.04em;}
+
+.discord-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:2px;border:1px solid #5865f2;
+  background:rgba(88,101,242,.15);color:#7289da;
+  font-size:.65rem;font-family:'Cinzel',serif;letter-spacing:.06em;
+  text-decoration:none;transition:all .2s;
+}
+.discord-btn:hover{background:rgba(88,101,242,.3);color:#fff;}
+
+/* LAYOUT */
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    max-width: 1300px;
+    margin: auto;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+/* PANELS */
+.panel{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    flex: 1;
+    min-width: 450px;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+.panel-head{
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-title{
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.panel-body{ padding: 24px; }
+
+/* INPUTS */
+.input-group { margin-bottom: 16px; position: relative; }
+.field-error {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--red);
+    margin-top: 4px;
+    min-height: 1em;
+}
+.label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+input, select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 10px 12px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    border-radius: 2px;
+    outline: none;
+}
+input:focus, select:focus { border-color: var(--gold-dim); }
+input[readonly] { color: var(--gold); border-style: dashed; background: transparent; cursor: default; }
+
+.btn-gold {
+    width: 100%;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px;
+    border: 1px solid var(--gold2);
+    background: var(--gold);
+    color: #0a0800;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+.btn-gold:hover { background: var(--gold2); transform: translateY(-1px); }
+
+/* RESULTS */
+.result-box {
+    margin-top: 20px;
+    padding: 18px;
+    background: rgba(200, 168, 75, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+}
+.result-box p { margin-bottom: 10px; font-size: 1rem; color: var(--text); }
+.result-box strong { color: var(--gold); }
+
+.attribute-list-display {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 15px;
+    padding-right: 5px;
+}
+.attribute-list-display::-webkit-scrollbar { width: 4px; }
+.attribute-list-display::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.attr-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.attr-name { color: var(--text-dim); font-size: 0.95rem; }
+.attr-val { color: var(--white); font-weight: 600; font-family: monospace; }
+
+/* TOOLTIP */
+.info-icon {
+    width: 16px; height: 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--gold);
+    border-radius: 50%;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: help;
+    position: relative;
+}
+.info-icon:hover::after {
+    content: "Item rarity = The Rarity the item got when it was dropped.";
+    position: absolute; bottom: 125%; right: 0;
+    width: 200px; padding: 8px;
+    background: var(--bg2); border: 1px solid var(--gold-dim);
+    color: var(--white); font-size: 11px; z-index: 10;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    font-size: 0.85rem;
+    color: #ffffff;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+/* THEME SELECT */
+.theme-select-wrap {
+  position: fixed;
+  top: calc(var(--header) + 10px);
+  right: 24px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+}
+.theme-select-wrap span {
+  font-size: .6rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.theme-select-wrap select {
+  width: auto;
+  padding: 2px 6px;
+  font-size: .65rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: .06em;
+  background: var(--bg3);
+  border-color: var(--border);
+  color: var(--gold);
+  cursor: pointer;
+}
+
+/* COLOUR THEMES — only accent vars change */
+body[data-theme="red"]    { --gold:#c84b4b; --gold2:#e26a6a; --gold-dim:#7a2828; --border2:#6a3232; }
+body[data-theme="blue"]   { --gold:#4b7ac8; --gold2:#6a9ae2; --gold-dim:#284b7a; --border2:#2a3a5a; }
+body[data-theme="green"]  { --gold:#4bc87a; --gold2:#6ae29a; --gold-dim:#287a4b; --border2:#2a5a3a; }
+body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a; --border2:#4a2a5a; }
+
+
+/* MONSTER ANIMATION TOGGLE */
+.anim-toggle-wrap {
+  position: fixed;
+  top: calc(var(--header) + 10px);
+  right: 220px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+}
+.anim-toggle-wrap span {
+  font-size: .6rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.anim-toggle {
+  position: relative;
+  width: 28px; height: 14px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background .2s;
+}
+.anim-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left .2s;
+}
+.anim-toggle.on  { background: var(--gold); }
+.anim-toggle.off { background: var(--border); }
+.anim-toggle.on::after  { left: 16px; }
+@media (max-width: 950px) { .panel { min-width: 100%; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Souls of Elysium <span>/ Calculators</span></h1>
+  <div class="header-right">
+    <a class="discord-btn" href="https://discord.com/invite/NBPPqb3EaM" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.031.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      Join Discord
+    </a>
+  </div>
+</header>
+
+<div class="anim-toggle-wrap">
+  <span>Monster Animation</span>
+  <button id="animToggle" class="anim-toggle on" onclick="toggleAnim()" title="Toggle monster animation"></button>
+</div>
+
+<div class="theme-select-wrap">
+  <span>Theme</span>
+  <select id="themeSelect" onchange="setTheme(this.value)">
+    <option value="classic">Classic</option>
+    <option value="red">Red</option>
+    <option value="blue">Blue</option>
+    <option value="green">Green</option>
+    <option value="purple">Purple</option>
+  </select>
+</div>
+
+<div class="container">
+    <div class="panel">
+        <div class="panel-head">
+            <span class="panel-title">Item Level Calculator</span>
+            <div class="info-icon">?</div>
+        </div>
+        <div class="panel-body">
+            <div class="input-group">
+                <span class="label">Rarity</span>
+                <select id="rarity">
+                    <option value="common">Common</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic">Epic</option>
+                    <option value="legendary">Legendary</option>
+                    <option value="mythic">Mythic</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="label">Current Item Level</span>
+                <input type="number" id="rarityitemlevel" placeholder="Enter level">
+            </div>
+            <button class="btn-gold" onclick="sum1()">Calculate Item Level</button>
+
+            <div class="result-box" id="ilvl-results" style="display:none">
+                <div class="input-group" id="row-rare">
+                    <span class="label">Rare Item Level</span>
+                    <input type="text" id="resultRare" readonly placeholder="—">
+                </div>
+                <div class="input-group" id="row-epic">
+                    <span class="label">Epic Item Level</span>
+                    <input type="text" id="resultEpic" readonly placeholder="—">
+                </div>
+                <div class="input-group" id="row-legendary">
+                    <span class="label">Legendary Item Level</span>
+                    <input type="text" id="result1" readonly placeholder="—">
+                </div>
+                <div class="input-group" id="row-mythic">
+                    <span class="label">Mythic Item Level</span>
+                    <input type="text" id="result4" readonly placeholder="—">
+                </div>
+                <div class="input-group">
+                    <span class="label">Accessories Max (+6)</span>
+                    <input type="text" id="result2" readonly placeholder="—">
+                </div>
+                <div class="input-group">
+                    <span class="label">Weapons/Armor Max (+11)</span>
+                    <input type="text" id="result3" readonly placeholder="—">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-head"><span class="panel-title">Attribute Calculator</span></div>
+        <div class="panel-body">
+            <div class="input-group">
+                <span class="label">Item Type</span>
+                <select id="typeSelect">
+                    <option value="" selected>Select item type</option>
+                    <option value="meleeWeapons">Melee Weapons</option>
+                    <option value="distanceWeapons">Distance Weapons</option>
+                    <option value="wands">Wands and Rods</option>
+                    <option value="armours">Helmets &amp; Armours</option>
+                    <option value="boots">Boots &amp; Legs</option>
+                    <option value="shields">Shields</option>
+                    <option value="accessories">Rings &amp; Necklaces</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="label">Item Level</span>
+                <input type="number" id="itemlevel" placeholder="Max 439">
+            </div>
+            <button class="btn-gold" onclick="changeType()">Calculate Attributes</button>
+            
+            <div class="result-box" id="attr-results" style="display:none">
+                <div id="attr-results-list" class="attribute-list-display"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    Created by: Neko & Datedd — Maintained by: Gild
+</footer>
+
+<canvas id="sprite-stage" style="position:fixed;bottom:0;left:0;width:100%;height:64px;pointer-events:none;z-index:50;image-rendering:pixelated;"></canvas>
+
+<script>
+    // Shared protection formulas
+    const protPhys = i => Math.floor(1 + ((Math.min(i, 439) - 1) * 0.01));
+    const protElem = i => Math.floor(1 + ((Math.min(i, 439) - 1) * 0.02));
+
+    // Inline error helpers
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        let err = el.parentElement.querySelector('.field-error');
+        if (!err) { err = document.createElement('span'); err.className = 'field-error'; el.parentElement.appendChild(err); }
+        err.textContent = msg;
+    }
+    function clearError(id) {
+        const el = document.getElementById(id);
+        const err = el && el.parentElement.querySelector('.field-error');
+        if (err) err.textContent = '';
+    }
+
+    function sum1() {
+        clearError('rarityitemlevel');
+        const rarity = document.getElementById('rarity').value;
+        const ilvl = Number(document.getElementById('rarityitemlevel').value);
+        if (!Number.isFinite(ilvl) || ilvl <= 0) { showError('rarityitemlevel', 'Enter a valid item level.'); return; }
+        let base;
+        switch (rarity) {
+            case 'common':    base = ilvl; break;
+            case 'rare':      base = (ilvl - 5) / 2; break;
+            case 'epic':      base = (ilvl - 15) / 3; break;
+            case 'legendary': base = (ilvl - 30) / 4; break;
+            case 'mythic':    base = (ilvl - 50) / 4.5; break;
+        }
+        if (!Number.isFinite(base) || base <= 0) { showError('rarityitemlevel', 'Invalid level for this rarity.'); return; }
+        const rare      = Math.floor(base * 2 + 5);
+        const epic      = Math.floor(base * 3 + 15);
+        const legendary = Math.floor(base * 4 + 30);
+        const mythic    = Math.floor(base * 4.5 + 50);
+        const tierOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
+        const inputTier = tierOrder.indexOf(rarity);
+        const show = tier => { const el = document.getElementById('row-' + tier); if (el) el.style.display = tierOrder.indexOf(tier) > inputTier ? '' : 'none'; };
+        show('rare'); show('epic'); show('legendary'); show('mythic');
+        document.getElementById('resultRare').value = rare;
+        document.getElementById('resultEpic').value = epic;
+        document.getElementById('result1').value    = legendary;
+        document.getElementById('result4').value    = mythic;
+        document.getElementById('result2').value    = mythic + 60;
+        document.getElementById('result3').value    = Math.min(439, mythic + 110);
+        document.getElementById('ilvl-results').style.display = '';
+    }
+
+    const attributes = {
+        meleeWeapons: {
+            "HP ":                                              { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                              { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Ice / Earth / Energy / Fire Damage ":  { value: 0.05,   unit: "%", min: 0, ceil: true },
+            "Elemental damage ":                                { value: 0.03,   unit: "%", min: 0, ceil: true },
+            "Chance to deal Double damage":                     { value: 0.01,   unit: "%", min: 0, ceil: true, cap: 5 },
+            "Damage taken recouped as life":                    { value: 0.058,  unit: "%", min: 0, ceil: true },
+            "Health on kill":                                   { value: 0.2,    unit: "",  min: 1 },
+            "1H / 2H / Melee Skill":                           { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) }
+        },
+        distanceWeapons: {
+            "HP ":                                                      { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                                      { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                        { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Ice / Earth / Energy / Fire / Holy Damage ":   { value: 0.05,   unit: "%", min: 0, ceil: true },
+            "Elemental damage ":                                        { value: 0.03,   unit: "%", min: 0, ceil: true },
+            "Chance to deal Double damage":                             { value: 0.01,   unit: "%", min: 0, ceil: true, cap: 5 },
+            "Damage taken recouped as life":                            { value: 0.058,  unit: "%", min: 0, ceil: true },
+            "Health on kill":                                           { value: 0.2,    unit: "",  min: 1 },
+            "Distance":                                                 { unit: "", formula: i => Math.floor((i - 1) / 50) + 1 }
+        },
+        wands: {
+            "HP ":                                                      { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                                      { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                        { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Ice / Earth / Energy / Fire / Death Damage ":  { value: 0.05,   unit: "%", min: 0, ceil: true },
+            "Elemental damage ":                                        { value: 0.03,   unit: "%", min: 0, ceil: true },
+            "Chance to deal Double damage":                             { value: 0.01,   unit: "%", min: 0, ceil: true, cap: 5 },
+            "Damage taken recouped as life":                            { value: 0.058,  unit: "%", min: 0, ceil: true },
+            "Spellcost Reduction":                                      { value: 0.034,  unit: "%", min: 0, ceil: true },
+            "Health on kill":                                           { value: 0.2,    unit: "",  min: 1 },
+            "Magic Level":                                              { unit: "", formula: i => Math.floor((i - 1) / 50) + 1 }
+        },
+        armours: {
+            "HP ":                                                          { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                                          { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                            { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Elemental Protection ":                            { unit: "%", formula: protPhys },
+            "Fire / Ice / Earth / Death / Holy / Energy Protection ":      { unit: "%", formula: protElem }
+        },
+        boots: {
+            "HP ":                                                          { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                                          { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                            { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Elemental Protection ":                            { unit: "%", formula: protPhys },
+            "Fire / Ice / Earth / Death / Holy / Energy Protection ":      { unit: "%", formula: protElem },
+            "Speed ":                                                       { value: 0.075,  unit: "",  min: 0 },
+            "Increased gold Drop ":                                        { value: 0.03,   unit: "%", min: 0 }
+        },
+        shields: {
+            "HP ":                                                          { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                                                          { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":                                            { value: 0.005,  unit: "%", min: 0 },
+            "Physical / Elemental Protection ":                            { unit: "%", formula: protPhys },
+            "Fire / Ice / Earth / Death / Holy / Energy Protection ":      { unit: "%", formula: protElem },
+            "Increased gold Drop ":                                        { value: 0.03,   unit: "%", min: 0 },
+            "Increased Healing ":                                          { value: 0.028,  unit: "%", min: 0 },
+            "Shielding":                                                    { unit: "", formula: i => Math.floor((i - 1) / 50) + 1 }
+        },
+        accessories: {
+            "HP ":                  { value: 0.0117, unit: "%", min: 0 },
+            "MP ":                  { value: 0.0205, unit: "%", min: 0 },
+            "Extra Experience ":   { value: 0.005,  unit: "%", min: 0 },
+            "Increased gold Drop ": { value: 0.03,  unit: "%", min: 0 },
+            "Increased Healing ":  { value: 0.028,  unit: "%", min: 0 },
+            "Max HP Buff ":        { value: 0.02,   unit: "%", min: 0 },
+            "Magic Level":         { unit: "", formula: i => Math.min(8, Math.floor((i - 1) / 50) + 1) },
+            "Distance":            { unit: "", formula: i => Math.min(8, Math.floor((i - 1) / 50) + 1) },
+            "One-handed skill":    { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) },
+            "Two-handed skill":    { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) }
+        }
+    };
+
+    function changeType() {
+        clearError('itemlevel');
+        const type = document.getElementById('typeSelect').value;
+        const itemLevel = Number(document.getElementById('itemlevel').value);
+        const attrList = document.getElementById('attr-results-list');
+        if (!type) { showError('itemlevel', 'Select an item type.'); return; }
+        if (!Number.isFinite(itemLevel) || itemLevel < 1 || itemLevel > 439) { showError('itemlevel', 'Enter a level from 1 to 439.'); return; }
+        const typeAttrs = attributes[type];
+        attrList.innerHTML = '';
+        for (const attr in typeAttrs) {
+            const def = typeAttrs[attr];
+            let minValue, maxValue;
+            if (def.formula) {
+                minValue = def.formula(1);
+                maxValue = def.formula(itemLevel);
+            } else {
+                minValue = Math.max(def.min, Number((def.value).toFixed(2)));
+                maxValue = Math.max(def.min, Number((def.value * itemLevel).toFixed(2)));
+                if (attr === 'Extra Experience ') maxValue = Math.min(maxValue, 1.5);
+                if (attr === 'HP ') maxValue = Math.min(maxValue, 5.0);
+                if (def.ceil) { minValue = Math.max(1, Math.ceil(minValue)); maxValue = Math.max(1, Math.ceil(maxValue)); }
+                if (Number.isFinite(def.cap)) maxValue = Math.min(maxValue, def.cap);
+                if (def.unit === '') { minValue = Math.round(minValue); maxValue = Math.round(maxValue); }
+            }
+            const row = document.createElement('div'); row.className = 'attr-row';
+            const name = document.createElement('span'); name.className = 'attr-name'; name.textContent = attr.trim();
+            const val = document.createElement('span'); val.className = 'attr-val'; val.textContent = `${minValue}${def.unit} — ${maxValue}${def.unit}`;
+            row.append(name, val); attrList.appendChild(row);
+        }
+        document.getElementById('attr-results').style.display = '';
+    }
+
+    // Theme
+    function setTheme(name) {
+        document.body.dataset.theme = name === 'classic' ? '' : name;
+        document.getElementById('themeSelect').value = name;
+        localStorage.setItem('soe-theme', name);
+    }
+    const savedTheme = localStorage.getItem('soe-theme');
+    if (savedTheme) setTheme(savedTheme);
+
+    // Enter key triggers the active calculator
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const id = document.activeElement?.id;
+        if (id === 'rarityitemlevel' || id === 'rarity') sum1();
+        if (id === 'itemlevel' || id === 'typeSelect') changeType();
+    });
+</script>
+
+<script>
+var CREATURE_CFG = [{"f": "1.png", "tw": 32, "th": 32, "n": 3}, {"f": "2.png", "tw": 64, "th": 64, "n": 3}, {"f": "3.png", "tw": 64, "th": 64, "n": 3}, {"f": "4.png", "tw": 32, "th": 32, "n": 3}, {"f": "5.png", "tw": 32, "th": 32, "n": 3}, {"f": "6.png", "tw": 32, "th": 32, "n": 3}, {"f": "7.png", "tw": 32, "th": 32, "n": 3}, {"f": "8.png", "tw": 32, "th": 32, "n": 16}, {"f": "9.png", "tw": 64, "th": 64, "n": 3}, {"f": "10.png", "tw": 64, "th": 64, "n": 3}, {"f": "11.png", "tw": 32, "th": 32, "n": 3}, {"f": "12.png", "tw": 32, "th": 32, "n": 3}, {"f": "13.png", "tw": 32, "th": 32, "n": 3}, {"f": "14.png", "tw": 64, "th": 64, "n": 9}, {"f": "15.png", "tw": 64, "th": 64, "n": 3}, {"f": "16.png", "tw": 32, "th": 32, "n": 3}, {"f": "17.png", "tw": 32, "th": 32, "n": 6}, {"f": "18.png", "tw": 64, "th": 64, "n": 3}, {"f": "19.png", "tw": 32, "th": 32, "n": 3}, {"f": "20.png", "tw": 64, "th": 64, "n": 3}, {"f": "21.png", "tw": 32, "th": 32, "n": 3}, {"f": "22.png", "tw": 32, "th": 32, "n": 3}, {"f": "23.png", "tw": 32, "th": 32, "n": 3}, {"f": "24.png", "tw": 32, "th": 32, "n": 5}, {"f": "25.png", "tw": 64, "th": 64, "n": 3}, {"f": "26.png", "tw": 32, "th": 32, "n": 3}, {"f": "27.png", "tw": 32, "th": 32, "n": 3}, {"f": "28.png", "tw": 32, "th": 32, "n": 3}, {"f": "29.png", "tw": 32, "th": 32, "n": 3}, {"f": "30.png", "tw": 32, "th": 32, "n": 9}, {"f": "31.png", "tw": 32, "th": 32, "n": 3}, {"f": "32.png", "tw": 64, "th": 64, "n": 3}, {"f": "33.png", "tw": 64, "th": 64, "n": 3}, {"f": "34.png", "tw": 32, "th": 32, "n": 3}, {"f": "35.png", "tw": 32, "th": 32, "n": 3}, {"f": "36.png", "tw": 64, "th": 64, "n": 3}, {"f": "37.png", "tw": 64, "th": 64, "n": 3}, {"f": "38.png", "tw": 32, "th": 32, "n": 3}, {"f": "39.png", "tw": 64, "th": 64, "n": 9}, {"f": "40.png", "tw": 64, "th": 64, "n": 9}, {"f": "41.png", "tw": 32, "th": 32, "n": 3}, {"f": "42.png", "tw": 32, "th": 32, "n": 2}, {"f": "43.png", "tw": 32, "th": 32, "n": 3}, {"f": "44.png", "tw": 64, "th": 64, "n": 3}, {"f": "45.png", "tw": 64, "th": 64, "n": 3}, {"f": "46.png", "tw": 32, "th": 32, "n": 3}, {"f": "47.png", "tw": 64, "th": 64, "n": 2}, {"f": "48.png", "tw": 32, "th": 32, "n": 3}, {"f": "49.png", "tw": 64, "th": 64, "n": 3}, {"f": "50.png", "tw": 32, "th": 32, "n": 3}, {"f": "51.png", "tw": 32, "th": 32, "n": 3}, {"f": "52.png", "tw": 64, "th": 64, "n": 3}, {"f": "53.png", "tw": 64, "th": 64, "n": 3}, {"f": "54.png", "tw": 32, "th": 32, "n": 3}, {"f": "55.png", "tw": 64, "th": 64, "n": 3}, {"f": "56.png", "tw": 32, "th": 32, "n": 3}, {"f": "57.png", "tw": 32, "th": 32, "n": 3}, {"f": "58.png", "tw": 32, "th": 32, "n": 9}, {"f": "59.png", "tw": 32, "th": 32, "n": 3}, {"f": "60.png", "tw": 32, "th": 32, "n": 3}, {"f": "61.png", "tw": 32, "th": 32, "n": 3}, {"f": "62.png", "tw": 32, "th": 32, "n": 3}, {"f": "63.png", "tw": 32, "th": 32, "n": 3}, {"f": "64.png", "tw": 32, "th": 32, "n": 3}, {"f": "65.png", "tw": 64, "th": 64, "n": 3}, {"f": "66.png", "tw": 32, "th": 32, "n": 3}, {"f": "67.png", "tw": 32, "th": 32, "n": 3}, {"f": "68.png", "tw": 32, "th": 32, "n": 3}, {"f": "69.png", "tw": 32, "th": 32, "n": 3}, {"f": "70.png", "tw": 64, "th": 64, "n": 3}, {"f": "71.png", "tw": 32, "th": 32, "n": 3}, {"f": "72.png", "tw": 32, "th": 32, "n": 9}, {"f": "73.png", "tw": 32, "th": 32, "n": 3}, {"f": "74.png", "tw": 32, "th": 32, "n": 3}, {"f": "75.png", "tw": 64, "th": 64, "n": 3}, {"f": "76.png", "tw": 32, "th": 32, "n": 3}, {"f": "77.png", "tw": 64, "th": 64, "n": 3}, {"f": "78.png", "tw": 64, "th": 64, "n": 3}, {"f": "79.png", "tw": 32, "th": 32, "n": 3}, {"f": "80.png", "tw": 32, "th": 32, "n": 3}, {"f": "81.png", "tw": 32, "th": 32, "n": 3}, {"f": "82.png", "tw": 64, "th": 64, "n": 3}, {"f": "83.png", "tw": 64, "th": 64, "n": 3}, {"f": "84.png", "tw": 64, "th": 64, "n": 3}, {"f": "85.png", "tw": 64, "th": 64, "n": 3}, {"f": "86.png", "tw": 64, "th": 64, "n": 3}, {"f": "87.png", "tw": 64, "th": 64, "n": 3}, {"f": "88.png", "tw": 64, "th": 64, "n": 3}, {"f": "89.png", "tw": 64, "th": 64, "n": 3}, {"f": "91.png", "tw": 64, "th": 64, "n": 3}, {"f": "92.png", "tw": 64, "th": 64, "n": 3}, {"f": "93.png", "tw": 64, "th": 64, "n": 3}, {"f": "94.png", "tw": 32, "th": 32, "n": 3}, {"f": "95.png", "tw": 64, "th": 64, "n": 3}, {"f": "96.png", "tw": 64, "th": 64, "n": 3}, {"f": "97.png", "tw": 64, "th": 64, "n": 3}, {"f": "98.png", "tw": 32, "th": 32, "n": 3}, {"f": "99.png", "tw": 64, "th": 64, "n": 3}, {"f": "100.png", "tw": 32, "th": 32, "n": 3}, {"f": "101.png", "tw": 64, "th": 64, "n": 3}, {"f": "102.png", "tw": 64, "th": 64, "n": 3}, {"f": "103.png", "tw": 32, "th": 32, "n": 9}, {"f": "104.png", "tw": 32, "th": 32, "n": 9}, {"f": "105.png", "tw": 64, "th": 64, "n": 3}, {"f": "106.png", "tw": 64, "th": 64, "n": 3}, {"f": "107.png", "tw": 32, "th": 32, "n": 3}, {"f": "108.png", "tw": 64, "th": 64, "n": 3}, {"f": "109.png", "tw": 32, "th": 32, "n": 9}, {"f": "110.png", "tw": 32, "th": 32, "n": 9}, {"f": "111.png", "tw": 64, "th": 64, "n": 3}, {"f": "112.png", "tw": 64, "th": 64, "n": 3}, {"f": "113.png", "tw": 64, "th": 64, "n": 3}, {"f": "114.png", "tw": 64, "th": 64, "n": 3}, {"f": "115.png", "tw": 64, "th": 64, "n": 3}, {"f": "116.png", "tw": 64, "th": 64, "n": 3}, {"f": "117.png", "tw": 64, "th": 64, "n": 3}, {"f": "118.png", "tw": 64, "th": 64, "n": 3}, {"f": "119.png", "tw": 64, "th": 64, "n": 3}, {"f": "120.png", "tw": 64, "th": 64, "n": 16}, {"f": "121.png", "tw": 64, "th": 64, "n": 9}, {"f": "122.png", "tw": 64, "th": 64, "n": 3}, {"f": "123.png", "tw": 64, "th": 64, "n": 3}, {"f": "124.png", "tw": 64, "th": 64, "n": 2}, {"f": "125.png", "tw": 64, "th": 64, "n": 3}, {"f": "126.png", "tw": 64, "th": 64, "n": 3}, {"f": "127.png", "tw": 64, "th": 64, "n": 3}, {"f": "128.png", "tw": 64, "th": 64, "n": 9}, {"f": "129.png", "tw": 32, "th": 32, "n": 3}, {"f": "130.png", "tw": 64, "th": 64, "n": 3}, {"f": "131.png", "tw": 64, "th": 64, "n": 3}, {"f": "132.png", "tw": 64, "th": 64, "n": 3}, {"f": "133.png", "tw": 64, "th": 64, "n": 3}, {"f": "134.png", "tw": 32, "th": 32, "n": 3}, {"f": "135.png", "tw": 32, "th": 32, "n": 3}, {"f": "136.png", "tw": 64, "th": 64, "n": 3}, {"f": "137.png", "tw": 64, "th": 64, "n": 3}, {"f": "138.png", "tw": 64, "th": 64, "n": 3}, {"f": "139.png", "tw": 32, "th": 32, "n": 3}, {"f": "140.png", "tw": 64, "th": 64, "n": 3}, {"f": "141.png", "tw": 32, "th": 32, "n": 3}, {"f": "142.png", "tw": 64, "th": 64, "n": 3}, {"f": "143.png", "tw": 64, "th": 64, "n": 3}, {"f": "144.png", "tw": 32, "th": 32, "n": 9}, {"f": "145.png", "tw": 32, "th": 32, "n": 16}, {"f": "146.png", "tw": 64, "th": 64, "n": 3}, {"f": "147.png", "tw": 64, "th": 64, "n": 3}, {"f": "148.png", "tw": 32, "th": 32, "n": 3}, {"f": "149.png", "tw": 32, "th": 32, "n": 16}, {"f": "150.png", "tw": 64, "th": 64, "n": 3}, {"f": "151.png", "tw": 64, "th": 64, "n": 3}, {"f": "152.png", "tw": 64, "th": 64, "n": 3}, {"f": "154.png", "tw": 64, "th": 64, "n": 3}, {"f": "155.png", "tw": 32, "th": 32, "n": 16}, {"f": "156.png", "tw": 32, "th": 32, "n": 9}, {"f": "157.png", "tw": 64, "th": 64, "n": 3}, {"f": "158.png", "tw": 32, "th": 32, "n": 9}, {"f": "159.png", "tw": 32, "th": 32, "n": 16}, {"f": "160.png", "tw": 32, "th": 32, "n": 16}, {"f": "161.png", "tw": 64, "th": 64, "n": 3}, {"f": "162.png", "tw": 64, "th": 64, "n": 3}, {"f": "163.png", "tw": 64, "th": 64, "n": 3}, {"f": "164.png", "tw": 64, "th": 64, "n": 3}, {"f": "165.png", "tw": 64, "th": 64, "n": 3}, {"f": "166.png", "tw": 64, "th": 64, "n": 3}, {"f": "167.png", "tw": 64, "th": 64, "n": 3}, {"f": "168.png", "tw": 64, "th": 64, "n": 5}, {"f": "169.png", "tw": 64, "th": 64, "n": 3}, {"f": "170.png", "tw": 64, "th": 64, "n": 3}, {"f": "171.png", "tw": 64, "th": 64, "n": 2}, {"f": "172.png", "tw": 64, "th": 64, "n": 3}, {"f": "173.png", "tw": 64, "th": 64, "n": 3}, {"f": "174.png", "tw": 64, "th": 64, "n": 2}, {"f": "175.png", "tw": 64, "th": 64, "n": 2}, {"f": "176.png", "tw": 64, "th": 64, "n": 3}, {"f": "177.png", "tw": 64, "th": 64, "n": 3}, {"f": "178.png", "tw": 64, "th": 64, "n": 3}, {"f": "179.png", "tw": 64, "th": 64, "n": 3}, {"f": "180.png", "tw": 64, "th": 64, "n": 3}, {"f": "181.png", "tw": 64, "th": 64, "n": 3}, {"f": "182.png", "tw": 32, "th": 32, "n": 3}, {"f": "183.png", "tw": 64, "th": 64, "n": 9}, {"f": "184.png", "tw": 64, "th": 64, "n": 9}, {"f": "185.png", "tw": 64, "th": 64, "n": 3}, {"f": "186.png", "tw": 64, "th": 64, "n": 3}, {"f": "187.png", "tw": 64, "th": 64, "n": 3}, {"f": "188.png", "tw": 64, "th": 64, "n": 3}, {"f": "189.png", "tw": 64, "th": 64, "n": 3}, {"f": "190.png", "tw": 64, "th": 64, "n": 9}, {"f": "191.png", "tw": 64, "th": 64, "n": 3}, {"f": "192.png", "tw": 64, "th": 64, "n": 3}, {"f": "193.png", "tw": 64, "th": 64, "n": 3}, {"f": "194.png", "tw": 32, "th": 32, "n": 3}, {"f": "195.png", "tw": 64, "th": 64, "n": 3}, {"f": "196.png", "tw": 64, "th": 64, "n": 3}, {"f": "197.png", "tw": 64, "th": 64, "n": 3}, {"f": "198.png", "tw": 32, "th": 32, "n": 3}, {"f": "199.png", "tw": 64, "th": 64, "n": 9}, {"f": "200.png", "tw": 64, "th": 64, "n": 3}, {"f": "201.png", "tw": 64, "th": 64, "n": 3}, {"f": "202.png", "tw": 64, "th": 64, "n": 9}, {"f": "203.png", "tw": 64, "th": 64, "n": 9}, {"f": "204.png", "tw": 64, "th": 64, "n": 3}, {"f": "205.png", "tw": 32, "th": 32, "n": 9}, {"f": "206.png", "tw": 64, "th": 64, "n": 3}, {"f": "207.png", "tw": 64, "th": 64, "n": 9}, {"f": "208.png", "tw": 64, "th": 64, "n": 3}, {"f": "209.png", "tw": 64, "th": 64, "n": 3}, {"f": "210.png", "tw": 64, "th": 64, "n": 3}, {"f": "211.png", "tw": 64, "th": 64, "n": 3}, {"f": "212.png", "tw": 64, "th": 64, "n": 3}, {"f": "213.png", "tw": 64, "th": 64, "n": 3}, {"f": "214.png", "tw": 32, "th": 32, "n": 3}, {"f": "215.png", "tw": 64, "th": 64, "n": 3}, {"f": "216.png", "tw": 64, "th": 64, "n": 4}, {"f": "217.png", "tw": 64, "th": 64, "n": 3}, {"f": "218.png", "tw": 64, "th": 64, "n": 4}, {"f": "219.png", "tw": 64, "th": 64, "n": 4}, {"f": "220.png", "tw": 64, "th": 64, "n": 16}, {"f": "221.png", "tw": 64, "th": 64, "n": 3}, {"f": "222.png", "tw": 64, "th": 64, "n": 3}, {"f": "223.png", "tw": 64, "th": 64, "n": 3}, {"f": "224.png", "tw": 64, "th": 64, "n": 3}, {"f": "225.png", "tw": 64, "th": 64, "n": 3}, {"f": "226.png", "tw": 64, "th": 64, "n": 3}, {"f": "227.png", "tw": 64, "th": 64, "n": 3}, {"f": "228.png", "tw": 32, "th": 32, "n": 3}, {"f": "229.png", "tw": 64, "th": 64, "n": 3}, {"f": "230.png", "tw": 64, "th": 64, "n": 3}, {"f": "231.png", "tw": 64, "th": 64, "n": 3}, {"f": "232.png", "tw": 64, "th": 64, "n": 3}, {"f": "233.png", "tw": 64, "th": 64, "n": 2}, {"f": "234.png", "tw": 64, "th": 64, "n": 3}, {"f": "235.png", "tw": 64, "th": 64, "n": 3}, {"f": "236.png", "tw": 64, "th": 64, "n": 3}, {"f": "237.png", "tw": 64, "th": 64, "n": 3}, {"f": "238.png", "tw": 64, "th": 64, "n": 3}, {"f": "239.png", "tw": 32, "th": 32, "n": 3}, {"f": "240.png", "tw": 32, "th": 32, "n": 6}, {"f": "241.png", "tw": 32, "th": 32, "n": 6}, {"f": "242.png", "tw": 32, "th": 32, "n": 6}, {"f": "243.png", "tw": 64, "th": 64, "n": 3}, {"f": "244.png", "tw": 64, "th": 64, "n": 3}, {"f": "245.png", "tw": 32, "th": 32, "n": 4}, {"f": "246.png", "tw": 64, "th": 64, "n": 3}, {"f": "247.png", "tw": 64, "th": 64, "n": 3}, {"f": "248.png", "tw": 64, "th": 64, "n": 3}, {"f": "249.png", "tw": 64, "th": 64, "n": 3}, {"f": "250.png", "tw": 64, "th": 64, "n": 3}, {"f": "251.png", "tw": 64, "th": 64, "n": 3}, {"f": "252.png", "tw": 64, "th": 64, "n": 3}, {"f": "253.png", "tw": 64, "th": 64, "n": 3}, {"f": "254.png", "tw": 32, "th": 32, "n": 4}, {"f": "255.png", "tw": 64, "th": 64, "n": 3}, {"f": "256.png", "tw": 64, "th": 64, "n": 3}, {"f": "257.png", "tw": 64, "th": 64, "n": 3}, {"f": "258.png", "tw": 64, "th": 64, "n": 3}, {"f": "259.png", "tw": 64, "th": 64, "n": 3}, {"f": "260.png", "tw": 64, "th": 64, "n": 9}, {"f": "261.png", "tw": 64, "th": 64, "n": 3}, {"f": "262.png", "tw": 64, "th": 64, "n": 3}, {"f": "263.png", "tw": 64, "th": 64, "n": 3}, {"f": "264.png", "tw": 64, "th": 64, "n": 3}, {"f": "265.png", "tw": 64, "th": 64, "n": 3}, {"f": "266.png", "tw": 64, "th": 64, "n": 3}, {"f": "267.png", "tw": 64, "th": 64, "n": 3}, {"f": "268.png", "tw": 64, "th": 64, "n": 16}, {"f": "269.png", "tw": 32, "th": 32, "n": 3}, {"f": "270.png", "tw": 64, "th": 64, "n": 3}, {"f": "271.png", "tw": 64, "th": 64, "n": 3}, {"f": "272.png", "tw": 64, "th": 64, "n": 3}, {"f": "273.png", "tw": 64, "th": 64, "n": 3}, {"f": "274.png", "tw": 64, "th": 64, "n": 3}, {"f": "275.png", "tw": 64, "th": 64, "n": 3}, {"f": "276.png", "tw": 64, "th": 64, "n": 3}, {"f": "277.png", "tw": 64, "th": 64, "n": 3}, {"f": "278.png", "tw": 64, "th": 64, "n": 3}, {"f": "279.png", "tw": 64, "th": 64, "n": 3}, {"f": "280.png", "tw": 64, "th": 64, "n": 3}, {"f": "281.png", "tw": 64, "th": 64, "n": 3}, {"f": "282.png", "tw": 64, "th": 64, "n": 3}, {"f": "283.png", "tw": 64, "th": 64, "n": 3}, {"f": "284.png", "tw": 64, "th": 64, "n": 9}, {"f": "285.png", "tw": 64, "th": 64, "n": 9}, {"f": "286.png", "tw": 64, "th": 64, "n": 9}, {"f": "287.png", "tw": 64, "th": 64, "n": 9}, {"f": "288.png", "tw": 64, "th": 64, "n": 9}, {"f": "289.png", "tw": 64, "th": 64, "n": 9}, {"f": "290.png", "tw": 64, "th": 64, "n": 9}, {"f": "291.png", "tw": 64, "th": 64, "n": 9}, {"f": "292.png", "tw": 64, "th": 64, "n": 9}, {"f": "293.png", "tw": 64, "th": 64, "n": 3}, {"f": "294.png", "tw": 64, "th": 64, "n": 3}, {"f": "295.png", "tw": 64, "th": 64, "n": 3}, {"f": "296.png", "tw": 64, "th": 64, "n": 3}, {"f": "297.png", "tw": 64, "th": 64, "n": 9}, {"f": "298.png", "tw": 64, "th": 64, "n": 9}, {"f": "299.png", "tw": 64, "th": 64, "n": 3}, {"f": "300.png", "tw": 64, "th": 64, "n": 9}, {"f": "301.png", "tw": 64, "th": 64, "n": 9}, {"f": "302.png", "tw": 64, "th": 64, "n": 3}, {"f": "303.png", "tw": 64, "th": 64, "n": 3}, {"f": "304.png", "tw": 64, "th": 64, "n": 3}, {"f": "305.png", "tw": 32, "th": 32, "n": 9}, {"f": "306.png", "tw": 64, "th": 64, "n": 3}, {"f": "307.png", "tw": 64, "th": 64, "n": 3}, {"f": "308.png", "tw": 64, "th": 64, "n": 3}, {"f": "309.png", "tw": 64, "th": 64, "n": 3}, {"f": "310.png", "tw": 64, "th": 64, "n": 3}, {"f": "311.png", "tw": 64, "th": 64, "n": 3}, {"f": "312.png", "tw": 64, "th": 64, "n": 3}, {"f": "313.png", "tw": 64, "th": 64, "n": 3}, {"f": "314.png", "tw": 64, "th": 64, "n": 9}, {"f": "315.png", "tw": 64, "th": 64, "n": 9}, {"f": "316.png", "tw": 64, "th": 64, "n": 9}, {"f": "317.png", "tw": 64, "th": 64, "n": 3}, {"f": "318.png", "tw": 64, "th": 64, "n": 3}, {"f": "319.png", "tw": 64, "th": 64, "n": 3}, {"f": "320.png", "tw": 64, "th": 64, "n": 3}, {"f": "321.png", "tw": 64, "th": 64, "n": 3}, {"f": "322.png", "tw": 64, "th": 64, "n": 3}, {"f": "323.png", "tw": 64, "th": 64, "n": 9}, {"f": "324.png", "tw": 64, "th": 64, "n": 9}, {"f": "325.png", "tw": 64, "th": 64, "n": 3}, {"f": "326.png", "tw": 64, "th": 64, "n": 3}, {"f": "327.png", "tw": 64, "th": 64, "n": 3}, {"f": "328.png", "tw": 64, "th": 64, "n": 3}, {"f": "329.png", "tw": 32, "th": 32, "n": 3}, {"f": "330.png", "tw": 64, "th": 64, "n": 3}, {"f": "331.png", "tw": 64, "th": 64, "n": 3}, {"f": "332.png", "tw": 64, "th": 64, "n": 3}, {"f": "333.png", "tw": 64, "th": 64, "n": 3}, {"f": "334.png", "tw": 64, "th": 64, "n": 3}, {"f": "335.png", "tw": 64, "th": 64, "n": 3}, {"f": "336.png", "tw": 64, "th": 64, "n": 3}, {"f": "337.png", "tw": 64, "th": 64, "n": 3}, {"f": "338.png", "tw": 64, "th": 64, "n": 3}, {"f": "339.png", "tw": 64, "th": 64, "n": 9}, {"f": "340.png", "tw": 64, "th": 64, "n": 3}, {"f": "341.png", "tw": 64, "th": 64, "n": 3}, {"f": "342.png", "tw": 64, "th": 64, "n": 3}, {"f": "343.png", "tw": 64, "th": 64, "n": 3}, {"f": "344.png", "tw": 64, "th": 64, "n": 9}, {"f": "345.png", "tw": 64, "th": 64, "n": 3}, {"f": "346.png", "tw": 64, "th": 64, "n": 3}, {"f": "347.png", "tw": 64, "th": 64, "n": 3}, {"f": "348.png", "tw": 64, "th": 64, "n": 9}, {"f": "349.png", "tw": 64, "th": 64, "n": 3}, {"f": "350.png", "tw": 64, "th": 64, "n": 3}, {"f": "351.png", "tw": 64, "th": 64, "n": 3}, {"f": "352.png", "tw": 64, "th": 64, "n": 3}, {"f": "353.png", "tw": 64, "th": 64, "n": 9}, {"f": "354.png", "tw": 64, "th": 64, "n": 3}, {"f": "355.png", "tw": 64, "th": 64, "n": 9}, {"f": "356.png", "tw": 64, "th": 64, "n": 3}, {"f": "357.png", "tw": 64, "th": 64, "n": 3}, {"f": "358.png", "tw": 64, "th": 64, "n": 3}, {"f": "359.png", "tw": 64, "th": 64, "n": 3}, {"f": "360.png", "tw": 64, "th": 64, "n": 3}, {"f": "361.png", "tw": 64, "th": 64, "n": 9}, {"f": "362.png", "tw": 32, "th": 32, "n": 3}, {"f": "363.png", "tw": 64, "th": 64, "n": 3}, {"f": "364.png", "tw": 32, "th": 32, "n": 3}, {"f": "365.png", "tw": 32, "th": 32, "n": 3}, {"f": "366.png", "tw": 32, "th": 32, "n": 3}, {"f": "367.png", "tw": 64, "th": 64, "n": 3}, {"f": "368.png", "tw": 64, "th": 64, "n": 3}, {"f": "369.png", "tw": 64, "th": 64, "n": 3}, {"f": "370.png", "tw": 64, "th": 64, "n": 3}, {"f": "371.png", "tw": 64, "th": 64, "n": 9}, {"f": "372.png", "tw": 32, "th": 32, "n": 4}, {"f": "373.png", "tw": 64, "th": 64, "n": 3}, {"f": "374.png", "tw": 64, "th": 64, "n": 3}, {"f": "375.png", "tw": 64, "th": 64, "n": 3}, {"f": "376.png", "tw": 64, "th": 64, "n": 2}, {"f": "377.png", "tw": 32, "th": 32, "n": 3}, {"f": "378.png", "tw": 32, "th": 32, "n": 3}, {"f": "379.png", "tw": 64, "th": 64, "n": 3}, {"f": "380.png", "tw": 64, "th": 64, "n": 9}, {"f": "381.png", "tw": 64, "th": 64, "n": 3}, {"f": "382.png", "tw": 64, "th": 64, "n": 9}, {"f": "383.png", "tw": 64, "th": 64, "n": 3}, {"f": "384.png", "tw": 64, "th": 64, "n": 3}, {"f": "385.png", "tw": 64, "th": 64, "n": 3}, {"f": "386.png", "tw": 64, "th": 64, "n": 3}, {"f": "387.png", "tw": 64, "th": 64, "n": 3}, {"f": "388.png", "tw": 64, "th": 64, "n": 3}, {"f": "389.png", "tw": 32, "th": 32, "n": 4}, {"f": "390.png", "tw": 64, "th": 64, "n": 3}, {"f": "391.png", "tw": 64, "th": 64, "n": 3}, {"f": "392.png", "tw": 64, "th": 64, "n": 3}, {"f": "393.png", "tw": 64, "th": 64, "n": 3}, {"f": "394.png", "tw": 32, "th": 32, "n": 3}, {"f": "395.png", "tw": 64, "th": 64, "n": 3}, {"f": "396.png", "tw": 64, "th": 64, "n": 9}, {"f": "399.png", "tw": 64, "th": 64, "n": 3}, {"f": "400.png", "tw": 64, "th": 64, "n": 3}, {"f": "401.png", "tw": 64, "th": 64, "n": 3}, {"f": "402.png", "tw": 64, "th": 64, "n": 9}, {"f": "403.png", "tw": 64, "th": 64, "n": 9}, {"f": "404.png", "tw": 64, "th": 64, "n": 3}, {"f": "405.png", "tw": 32, "th": 32, "n": 9}, {"f": "406.png", "tw": 64, "th": 64, "n": 3}, {"f": "407.png", "tw": 64, "th": 64, "n": 3}, {"f": "408.png", "tw": 64, "th": 64, "n": 3}, {"f": "409.png", "tw": 32, "th": 32, "n": 13}, {"f": "410.png", "tw": 64, "th": 64, "n": 9}, {"f": "411.png", "tw": 64, "th": 64, "n": 9}, {"f": "412.png", "tw": 64, "th": 64, "n": 9}, {"f": "413.png", "tw": 64, "th": 64, "n": 9}, {"f": "414.png", "tw": 64, "th": 64, "n": 9}, {"f": "415.png", "tw": 64, "th": 64, "n": 9}, {"f": "416.png", "tw": 64, "th": 64, "n": 9}, {"f": "417.png", "tw": 64, "th": 64, "n": 9}, {"f": "418.png", "tw": 64, "th": 64, "n": 9}, {"f": "419.png", "tw": 64, "th": 64, "n": 9}, {"f": "420.png", "tw": 32, "th": 32, "n": 3}];
+</script>
+<script>
+var animEnabled = true;
+var animStart = null;
+var animStop  = null;
+function toggleAnim() {
+    animEnabled = !animEnabled;
+    var btn    = document.getElementById('animToggle');
+    var canvas = document.getElementById('sprite-stage');
+    btn.classList.toggle('on',  animEnabled);
+    btn.classList.toggle('off', !animEnabled);
+    if (!animEnabled) { if (animStop) animStop(); }
+    else { canvas.style.display = ''; if (animStart) animStart(); }
+}
+</script>
+<script>
+(function() {
+    if (!window.CREATURE_CFG) return;
+    var canvas = document.getElementById('sprite-stage');
+    var ctx = canvas.getContext('2d');
+    var footer = document.querySelector('footer');
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = 64;
+        if (footer) {
+            var fRect = footer.getBoundingClientRect();
+            canvas.style.bottom = Math.max(0, window.innerHeight - fRect.top) + 'px';
+        }
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', resize);
+
+    var POOL_SIZE = 20;
+    var pool=[], state='off', dir=1, x=-80, t=0, waitUntil=0, current=null, lastIdx=-1, shuffled=[], cfgIndex=0, rafId=null;
+
+    function loadNext(slot) {
+        if (cfgIndex >= shuffled.length) cfgIndex = 0;
+        var entry = shuffled[cfgIndex++];
+        var img = new Image();
+        var e = { img: img, tw: entry.tw, th: entry.th, ready: false };
+        img.onload = function() {
+            if (state === 'off') return;
+            var totalRows = e.th > 0 ? Math.round(img.naturalHeight / e.th) : 1;
+            e.walkN     = totalRows > 2 ? totalRows - 1 : totalRows;
+            e.walkStart = totalRows > 2 ? 1 : 0;
+            e.ready = true;
+            if (state === 'loading' && pool.filter(function(p){return p && p.ready;}).length >= 3) {
+                pickCreature(-1);
+                state = 'walking';
+                rafId = requestAnimationFrame(tick);
+            }
+        };
+        img.onerror = function() {};
+        img.src = 'animations/' + entry.f;
+        pool[slot] = e;
+    }
+
+    animStop = function() {
+        state = 'off'; pool = []; current = null;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.style.display = 'none';
+    };
+
+    animStart = function() {
+        if (state !== 'off') return;
+        canvas.style.display = '';
+        shuffled = CREATURE_CFG.slice().sort(function(){return Math.random() - 0.5;});
+        cfgIndex=0; pool=[]; dir=1; x=-80; t=0; state='loading';
+        for (var i = 0; i < POOL_SIZE; i++) loadNext(i);
+    };
+
+    animStart();
+
+    function pickCreature(excludeIdx) {
+        var readyIndices = pool.map(function(e,i){return e && e.ready ? i : -1;}).filter(function(i){return i !== -1 && i !== excludeIdx;});
+        if (!readyIndices.length) return false;
+        var idx = readyIndices[Math.floor(Math.random() * readyIndices.length)];
+        lastIdx=idx; current=pool[idx]; t=0;
+        setTimeout(function(){loadNext(idx);}, 2000);
+        return true;
+    }
+
+    function tick(now) {
+        if (state === 'off') return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (state === 'waiting' && now >= waitUntil) {
+            dir = -dir; x = dir > 0 ? -80 : canvas.width + 80;
+            if (pickCreature(lastIdx)) state = 'walking';
+        }
+        if (state === 'walking' && current) {
+            t++; x += 1.2 * dir;
+            var offEdge = dir > 0 ? x > canvas.width + 80 : x < -80;
+            if (offEdge) { state = 'waiting'; waitUntil = now + 5000 + Math.random() * 5000; }
+            else {
+                var img = current.img, tw = current.tw, th = current.th;
+                var walkN = current.walkN || 1;
+                var walkStart = current.walkStart || 0;
+                var col = dir > 0 ? 1 : 3;
+                var frame = Math.floor(t / 8) % walkN;
+                var sx = col * tw;
+                var sy = (walkStart + frame) * th;
+                var scale = 64 / th;
+                var dw = Math.round(tw * scale);
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(img, sx, sy, tw, th, Math.round(x - dw / 2), 0, dw, 64);
+            }
+        }
+        rafId = requestAnimationFrame(tick);
+    }
+})();
+</script>
+</body>
+</html>
