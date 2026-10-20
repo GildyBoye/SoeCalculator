@@ -457,7 +457,7 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             "Chance to deal Double damage":                     { value: 0.01,   unit: "%", min: 0, ceil: true, cap: 5 },
             "Damage taken recouped as life":                    { value: 0.058,  unit: "%", min: 0, ceil: true },
             "Health on kill":                                   { value: 0.2,    unit: "",  min: 1 },
-            "1H / 2H / Melee Skill":                           { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) }
+            "1H / 2H / Melee Skill":                           { unit: "", formula: i => Math.min(5, Math.ceil(i / 100)) }
         },
         distanceWeapons: {
             "HP ":                                                      { value: 0.0117, unit: "%", min: 0 },
@@ -517,8 +517,8 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             "Max HP Buff ":        { value: 0.02,   unit: "%", min: 0 },
             "Magic Level":         { unit: "", formula: i => Math.min(8, Math.floor((i - 1) / 50) + 1) },
             "Distance":            { unit: "", formula: i => Math.min(8, Math.floor((i - 1) / 50) + 1) },
-            "One-handed skill":    { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) },
-            "Two-handed skill":    { unit: "", formula: i => Math.min(5, Math.floor((i - 1) / 50) + 1) }
+            "One-handed skill":    { unit: "", formula: i => Math.min(5, Math.ceil(i / 100)) },
+            "Two-handed skill":    { unit: "", formula: i => Math.min(5, Math.ceil(i / 100)) }
         }
     };
 
