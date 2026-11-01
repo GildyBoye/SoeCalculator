@@ -279,7 +279,19 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
 .anim-toggle.on  { background: var(--gold); }
 .anim-toggle.off { background: var(--border); }
 .anim-toggle.on::after  { left: 16px; }
-@media (max-width: 950px) { .panel { min-width: 100%; } }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; align-items: end; }
+/* CALCULATOR SWITCH */
+.calc-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 32px auto -8px;
+  padding: 0 20px;
+}
+.calc-switch .label { margin-bottom: 0; }
+.calc-switch select { width: auto; min-width: 260px; font-family: 'Cinzel', serif; font-size: .8rem; letter-spacing: .06em; color: var(--gold); cursor: pointer; }
+@media (max-width: 950px) { .panel { min-width: 100%; } .calc-switch { margin-top: 64px; } }
 </style>
 </head>
 <body>
@@ -310,8 +322,19 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
   </select>
 </div>
 
+<div class="calc-switch">
+    <span class="label">Calculator</span>
+    <select id="calcSelect" onchange="showCalculator(this.value)">
+        <option value="items">Item Level &amp; Attributes</option>
+        <option value="stats">Character Stats</option>
+        <option value="skills">Magic Level &amp; Skills</option>
+        <option value="exp">Experience To Level</option>
+        <option value="share">Experience Sharing</option>
+    </select>
+</div>
+
 <div class="container">
-    <div class="panel">
+    <div class="panel" data-calc="items">
         <div class="panel-head">
             <span class="panel-title">Item Level Calculator</span>
             <div class="info-icon">?</div>
@@ -359,10 +382,45 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
                     <input type="text" id="result3" readonly placeholder="—">
                 </div>
             </div>
+
+            <span class="label" style="margin-top:28px;border-top:1px solid var(--border);padding-top:20px;">Upgrade Planner (uses the rarity above)</span>
+            <div class="input-group">
+                <span class="label">Item Type</span>
+                <select id="upgradeGroup">
+                    <option value="gear">Weapons, Armour, Helmets, Legs, Boots, Shields</option>
+                    <option value="accessory">Rings &amp; Necklaces</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Current Upgrade (+)</span>
+                    <input type="number" id="upgradeFrom" value="0" min="0">
+                </div>
+                <div class="input-group">
+                    <span class="label">Target Upgrade (+)</span>
+                    <input type="number" id="upgradeTo" placeholder="Max for rarity">
+                </div>
+            </div>
+            <button class="btn-gold" onclick="planUpgrade()">Plan Upgrade</button>
+
+            <div class="result-box" id="upgrade-results" style="display:none">
+                <div class="input-row">
+                    <div class="input-group">
+                        <span class="label">Expected Upgrade Crystals</span>
+                        <input type="text" id="resultUpgradeCrystals" readonly placeholder="—">
+                    </div>
+                    <div class="input-group">
+                        <span class="label">Expected Upgrade Catalysts</span>
+                        <input type="text" id="resultUpgradeCatalysts" readonly placeholder="—">
+                    </div>
+                </div>
+                <div id="upgrade-steps" class="attribute-list-display"></div>
+                <p id="upgrade-notes" style="margin-top:14px;font-size:.85rem;color:var(--text-dim);"></p>
+            </div>
         </div>
     </div>
 
-    <div class="panel">
+    <div class="panel" data-calc="items">
         <div class="panel-head"><span class="panel-title">Attribute Calculator</span></div>
         <div class="panel-body">
             <div class="input-group">
@@ -386,6 +444,239 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             
             <div class="result-box" id="attr-results" style="display:none">
                 <div id="attr-results-list" class="attribute-list-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" data-calc="stats" style="display:none">
+        <div class="panel-head"><span class="panel-title">Character Stats Calculator</span></div>
+        <div class="panel-body">
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Vocation</span>
+                    <select id="statVocation" onchange="toggleRookExit()">
+                        <option value="knight">Knight</option>
+                        <option value="paladin">Paladin</option>
+                        <option value="sorcerer">Sorcerer</option>
+                        <option value="druid">Druid</option>
+                        <option value="none">No Vocation (Rookgaard)</option>
+                    </select>
+                </div>
+                <div class="input-group" id="row-statPromoted">
+                    <span class="label">Promotion</span>
+                    <select id="statPromoted">
+                        <option value="yes">Promoted</option>
+                        <option value="no">Not promoted</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Level</span>
+                    <input type="number" id="statLevel" placeholder="Enter level">
+                </div>
+                <div class="input-group" id="row-rookExit">
+                    <span class="label">Left Rookgaard At</span>
+                    <select id="statRookExit">
+                        <option value="9">9</option>
+                        <option value="8">8</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <span class="label">Health Gems Used (0-10)</span>
+                <input type="number" id="statGems" value="0" min="0" max="10">
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Capacity Scrolls (0-5)</span>
+                    <input type="number" id="statCapScrolls" value="0" min="0" max="5">
+                </div>
+                <div class="input-group">
+                    <span class="label" title="Unlocked by Grok's quest, after all 5 regular scrolls">Capacity Scroll+ (0-5)</span>
+                    <input type="number" id="statCapScrollsPlus" value="0" min="0" max="5">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Gear Max HP % (total)</span>
+                    <input type="number" id="statGearHpPercent" value="0" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <span class="label">Gear Flat Max HP (total)</span>
+                    <input type="number" id="statGearHpFlat" value="0" min="0">
+                </div>
+            </div>
+            <button class="btn-gold" onclick="calculateStats()">Calculate Stats</button>
+
+            <div class="result-box" id="stat-results" style="display:none">
+                <div class="input-group">
+                    <span class="label">Max Health</span>
+                    <input type="text" id="resultHp" readonly placeholder="—">
+                </div>
+                <div class="input-group">
+                    <span class="label">Max Mana</span>
+                    <input type="text" id="resultMp" readonly placeholder="—">
+                </div>
+                <div class="input-group">
+                    <span class="label">Capacity</span>
+                    <input type="text" id="resultCap" readonly placeholder="—">
+                </div>
+                <div id="stat-breakdown" class="attribute-list-display"></div>
+                <span class="label" style="margin-top:18px;">At Other Levels (same gems, scrolls &amp; gear)</span>
+                <div id="stat-milestones" class="attribute-list-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" data-calc="exp" style="display:none">
+        <div class="panel-head"><span class="panel-title">Experience To Level Calculator</span></div>
+        <div class="panel-body">
+            <div class="input-group">
+                <span class="label">Server Preset</span>
+                <select id="expPreset" onchange="applyExpPreset()">
+                    <option value="1.4x">Sanctum (1.4x)</option>
+                    <option value="1-50 4x, 51-100 3x, 101-150 2.5x, 151-250 2x, 251+ 1.6x">Fatalis (4x → 1.6x)</option>
+                    <option value="">Custom</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="label">Experience Stages</span>
+                <input type="text" id="expStages" value="1.4x" placeholder="e.g. 1.4x  or  1-50 4x, 51-100 3x, 101+ 2x">
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Current Level</span>
+                    <input type="number" id="expFrom" placeholder="e.g. 200">
+                </div>
+                <div class="input-group">
+                    <span class="label">Target Level</span>
+                    <input type="number" id="expTo" placeholder="e.g. 250">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Extra Exp % (boosts, gear)</span>
+                    <input type="number" id="expBonus" value="0" min="0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <span class="label">Monster Base Exp (optional)</span>
+                    <input type="number" id="expMonster" placeholder="e.g. 4000">
+                </div>
+            </div>
+            <button class="btn-gold" onclick="calculateExp()">Calculate Experience</button>
+
+            <div class="result-box" id="exp-results" style="display:none">
+                <div class="input-group">
+                    <span class="label">Experience Needed</span>
+                    <input type="text" id="resultExpNeeded" readonly placeholder="—">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <span class="label">Base Exp To Hunt (before rates)</span>
+                        <input type="text" id="resultExpBase" readonly placeholder="—">
+                    </div>
+                    <div class="input-group">
+                        <span class="label">Monster Kills</span>
+                        <input type="text" id="resultExpKills" readonly placeholder="—">
+                    </div>
+                </div>
+                <div id="exp-stages" class="attribute-list-display"></div>
+                <p style="margin-top:14px;font-size:.85rem;color:var(--text-dim);">Each stage applies to the level you are at when the experience is gained. Base exp is what monsters show before the server rate and your bonuses.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" data-calc="skills" style="display:none">
+        <div class="panel-head"><span class="panel-title">Magic Level &amp; Skills Calculator</span></div>
+        <div class="panel-body">
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Vocation</span>
+                    <select id="skillVocation">
+                        <option value="knight">Knight</option>
+                        <option value="paladin">Paladin</option>
+                        <option value="sorcerer">Sorcerer</option>
+                        <option value="druid">Druid</option>
+                        <option value="none">No Vocation (Rookgaard)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="label">Skill</span>
+                    <select id="skillType">
+                        <option value="magic">Magic Level</option>
+                        <option value="fist">Fist Fighting</option>
+                        <option value="oneHanded">One-Handed Fighting</option>
+                        <option value="twoHanded">Two-Handed Fighting</option>
+                        <option value="distance">Distance Fighting</option>
+                        <option value="shield">Shielding</option>
+                        <option value="fishing">Fishing</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Server Preset</span>
+                    <select id="skillPreset" onchange="document.getElementById('skillRate').value = this.value">
+                        <option value="1.4">Sanctum (1.4x)</option>
+                        <option value="2">Fatalis (2x)</option>
+                        <option value="1">Custom</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="label">Skill / Magic Rate (x)</span>
+                    <input type="number" id="skillRate" value="1.4" min="0.1" step="0.1">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Current Level</span>
+                    <input type="number" id="skillFrom" placeholder="e.g. 80">
+                </div>
+                <div class="input-group">
+                    <span class="label">Target Level</span>
+                    <input type="number" id="skillTo" placeholder="e.g. 90">
+                </div>
+            </div>
+            <button class="btn-gold" onclick="calculateSkill()">Calculate Training</button>
+
+            <div class="result-box" id="skill-results" style="display:none">
+                <div class="input-row">
+                    <div class="input-group">
+                        <span class="label" id="labelSkillNeeded">Needed</span>
+                        <input type="text" id="resultSkillNeeded" readonly placeholder="—">
+                    </div>
+                    <div class="input-group">
+                        <span class="label" id="labelSkillTime">Time</span>
+                        <input type="text" id="resultSkillTime" readonly placeholder="—">
+                    </div>
+                </div>
+                <div id="skill-levels" class="attribute-list-display"></div>
+                <p id="skill-notes" style="margin-top:14px;font-size:.85rem;color:var(--text-dim);"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" data-calc="share" style="display:none">
+        <div class="panel-head"><span class="panel-title">Experience Sharing Calculator</span></div>
+        <div class="panel-body">
+            <div class="input-group">
+                <span class="label">Your Level</span>
+                <input type="number" id="shareLevel" placeholder="Enter level">
+            </div>
+            <div class="input-group">
+                <span class="label">Party Levels (optional, comma separated)</span>
+                <input type="text" id="shareParty" placeholder="e.g. 250, 310, 180">
+            </div>
+            <button class="btn-gold" onclick="calculateShare()">Calculate Sharing</button>
+
+            <div class="result-box" id="share-results" style="display:none">
+                <div class="input-group">
+                    <span class="label">You Can Share With Levels</span>
+                    <input type="text" id="resultShareRange" readonly placeholder="—">
+                </div>
+                <div id="share-party" class="attribute-list-display"></div>
+                <p style="margin-top:14px;font-size:.85rem;color:var(--text-dim);">The lowest member must be at least two thirds of the highest member's level. Everyone also has to stay close to the party and keep fighting for the share to stay active.</p>
             </div>
         </div>
     </div>
@@ -445,6 +736,333 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
         document.getElementById('result2').value    = mythic + 60;
         document.getElementById('result3').value    = Math.min(439, mythic + 110);
         document.getElementById('ilvl-results').style.display = '';
+    }
+
+    // Upgrade planner: chance and pity per step are keyed by the level being upgraded from (+N -> +N+1)
+    const UPGRADE_STEPS = {
+        0:  { chance: 90, pity: 4.75, pityEstimated: true },
+        1:  { chance: 80, pity: 4.25, pityEstimated: true },
+        2:  { chance: 70, pity: 3.75, pityEstimated: true },
+        3:  { chance: 60, pity: 3.25 },
+        4:  { chance: 50, pity: 2.75 },
+        5:  { chance: 40, pity: 2.25 },
+        6:  { chance: 15, pity: 1.00, destroys: true },
+        7:  { chance: 10, pity: 0.75, destroys: true },
+        8:  { chance: 5,  pity: 0.50, destroys: true },
+        9:  { chance: 5,  pity: 0.50, destroys: true },
+        10: { chance: 5,  pity: 0,    destroys: true },
+    };
+    const UPGRADE_PITY_CAP = 35;
+    const UPGRADE_MAX = {
+        gear:      { common: 7, rare: 8, epic: 9, legendary: 10, mythic: 11 },
+        accessory: { common: 2, rare: 3, epic: 4, legendary: 5,  mythic: 6 },
+    };
+    const pct = n => `${Number(n.toFixed(2))}%`;
+
+    // expected attempts when every failure adds the pity step, capped at +35%
+    function expectedAttempts(step) {
+        let expected = 0;
+        let reachChance = 1;
+        for (let attempt = 0; reachChance > 1e-9 && attempt < 10000; attempt++) {
+            expected += reachChance;
+            const chance = Math.min(step.chance + attempt * step.pity, step.chance + UPGRADE_PITY_CAP, 100) / 100;
+            reachChance *= 1 - chance;
+        }
+        return expected;
+    }
+
+    function planUpgrade() {
+        ['upgradeFrom', 'upgradeTo'].forEach(clearError);
+        const rarity = document.getElementById('rarity').value;
+        const group = document.getElementById('upgradeGroup').value;
+        const maxLevel = UPGRADE_MAX[group][rarity];
+        const from = Number(document.getElementById('upgradeFrom').value || 0);
+        const toText = document.getElementById('upgradeTo').value;
+        const to = toText === '' ? maxLevel : Number(toText);
+        if (!Number.isInteger(from) || from < 0 || from >= maxLevel) { showError('upgradeFrom', `Enter +0 to +${maxLevel - 1} for this rarity.`); return; }
+        if (!Number.isInteger(to) || to <= from || to > maxLevel) { showError('upgradeTo', `Enter +${from + 1} to +${maxLevel} (max for ${rarity}).`); return; }
+
+        const row = (name, value) => `<div class="attr-row"><span class="attr-name">${name}</span><span class="attr-val">${value}</span></div>`;
+        const rows = [];
+        let crystals = 0;
+        let catalysts = 0;
+        let estimated = false;
+        for (let level = from; level < to; level++) {
+            const step = UPGRADE_STEPS[level];
+            estimated = estimated || step.pityEstimated;
+            const attempts = expectedAttempts(step);
+            crystals += attempts;
+            if (step.destroys) catalysts += attempts - 1;
+            const pity = step.pity ? `+${pct(step.pity)}${step.pityEstimated ? '*' : ''}/fail` : 'no pity';
+            rows.push(row(`+${level} → +${level + 1}`, `${pct(step.chance)} · ${pity} · ~${attempts.toFixed(1)} tries`));
+        }
+
+        document.getElementById('resultUpgradeCrystals').value = '~' + crystals.toFixed(1);
+        document.getElementById('resultUpgradeCatalysts').value = '~' + catalysts.toFixed(1);
+        rows.push(row('Item level gained', `+${(to - from) * 10}`));
+        document.getElementById('upgrade-steps').innerHTML = rows.join('');
+        document.getElementById('upgrade-notes').textContent =
+            'Upgrade catalysts are required from +6 to +7 onwards: carry one for every attempt or a failure destroys the item. ' +
+            `Pity stacks on each failure (up to +${UPGRADE_PITY_CAP}%) and stays with the item until it succeeds.` +
+            (estimated ? ' * Pity for the first three steps (+0 to +3) is estimated from the later steps.' : '');
+        document.getElementById('upgrade-results').style.display = '';
+    }
+
+    // Character stats: every character starts at level 1 on Rookgaard and gains its current vocation's stats per level
+    const STAT_START = { hp: 185, mp: 35, cap: 500 };
+    const STAT_GAINS = {
+        none:     { hp: 5,  mp: 5,  cap: 10, gem: 15, capScroll: 100 },
+        knight:   { hp: 15, mp: 5,  cap: 25, gem: 25, capScroll: 200 },
+        paladin:  { hp: 10, mp: 15, cap: 20, gem: 20, capScroll: 150 },
+        sorcerer: { hp: 5,  mp: 30, cap: 10, gem: 15, capScroll: 100 },
+        druid:    { hp: 5,  mp: 30, cap: 10, gem: 15, capScroll: 100 },
+    };
+    // natural regen from vocations.xml: amount every N seconds, while fed
+    const STAT_REGEN = {
+        none:     { base:     { hp: [1, 6], mp: [1, 6] } },
+        knight:   { base:     { hp: [1, 3], mp: [2, 6] }, promoted: { hp: [2, 2], mp: [2, 4] } },
+        paladin:  { base:     { hp: [1, 4], mp: [2, 5] }, promoted: { hp: [1, 4], mp: [2, 2] } },
+        sorcerer: { base:     { hp: [1, 7], mp: [2, 2] }, promoted: { hp: [1, 5], mp: [2, 1] } },
+        druid:    { base:     { hp: [1, 7], mp: [2, 2] }, promoted: { hp: [1, 5], mp: [2, 1] } },
+    };
+    const STAT_MILESTONES = [100, 200, 300, 400, 500, 750, 1000];
+    const fmt = n => Math.round(n).toLocaleString('en-US');
+    const perSecond = ([amount, seconds]) => amount / seconds;
+
+    function toggleRookExit() {
+        const isRook = document.getElementById('statVocation').value === 'none';
+        document.getElementById('row-rookExit').style.display = isRook ? 'none' : '';
+        document.getElementById('row-statPromoted').style.display = isRook ? 'none' : '';
+    }
+
+    function levelStats(vocation, level, rookExit) {
+        const rook = STAT_GAINS.none;
+        const rookLevels = vocation === 'none' ? level - 1 : rookExit - 1;
+        const vocLevels = vocation === 'none' ? 0 : level - rookExit;
+        const gains = STAT_GAINS[vocation];
+        return {
+            hp:  STAT_START.hp  + rookLevels * rook.hp  + vocLevels * gains.hp,
+            mp:  STAT_START.mp  + rookLevels * rook.mp  + vocLevels * gains.mp,
+            cap: STAT_START.cap + rookLevels * rook.cap + vocLevels * gains.cap,
+        };
+    }
+
+    function totalStats(vocation, level, rookExit, gear) {
+        const base = levelStats(vocation, level, rookExit);
+        const gains = STAT_GAINS[vocation];
+        const gemHp = gear.gems * gains.gem;
+        const percentHp = (base.hp + gemHp) * gear.hpPercent / 100;
+        return {
+            base, gemHp, percentHp,
+            hp: base.hp + gemHp + percentHp + gear.hpFlat,
+            mp: base.mp,
+            scrollCap: (gear.capScrolls + gear.capScrollsPlus) * gains.capScroll,
+            cap: base.cap + (gear.capScrolls + gear.capScrollsPlus) * gains.capScroll,
+        };
+    }
+
+    function readCount(id, max) {
+        clearError(id);
+        const value = Number(document.getElementById(id).value || 0);
+        if (!Number.isInteger(value) || value < 0 || value > max) { showError(id, `Enter a whole number from 0 to ${max}.`); return null; }
+        return value;
+    }
+
+    function calculateStats() {
+        ['statLevel', 'statGearHpPercent', 'statGearHpFlat'].forEach(clearError);
+        const vocation = document.getElementById('statVocation').value;
+        const rookExit = Number(document.getElementById('statRookExit').value);
+        const level = Number(document.getElementById('statLevel').value);
+        if (!Number.isInteger(level) || level < 1) { showError('statLevel', 'Enter a valid level.'); return; }
+        if (vocation !== 'none' && level < rookExit) { showError('statLevel', `A vocation character is at least level ${rookExit} here.`); return; }
+
+        const gems = readCount('statGems', 10);
+        const capScrolls = readCount('statCapScrolls', 5);
+        const capScrollsPlus = readCount('statCapScrollsPlus', 5);
+        if (gems === null || capScrolls === null || capScrollsPlus === null) return;
+        if (gems > 0 && level < 20) { showError('statGems', 'Health gems need level 20.'); return; }
+        if (capScrolls + capScrollsPlus > 0 && level < 5) { showError('statCapScrolls', 'Capacity scrolls need level 5.'); return; }
+        if (capScrollsPlus > 0 && capScrolls < 5) { showError('statCapScrollsPlus', 'Use all 5 regular capacity scrolls first.'); return; }
+
+        const hpPercent = Number(document.getElementById('statGearHpPercent').value || 0);
+        const hpFlat = Number(document.getElementById('statGearHpFlat').value || 0);
+        if (!Number.isFinite(hpPercent) || hpPercent < 0) { showError('statGearHpPercent', 'Enter 0 or more.'); return; }
+        if (!Number.isFinite(hpFlat) || hpFlat < 0) { showError('statGearHpFlat', 'Enter 0 or more.'); return; }
+
+        const gear = { gems, capScrolls, capScrollsPlus, hpPercent, hpFlat };
+        const stats = totalStats(vocation, level, rookExit, gear);
+        document.getElementById('resultHp').value  = fmt(stats.hp);
+        document.getElementById('resultMp').value  = fmt(stats.mp);
+        document.getElementById('resultCap').value = fmt(stats.cap) + ' oz';
+
+        const regenSet = STAT_REGEN[vocation];
+        const regen = document.getElementById('statPromoted').value === 'yes' && regenSet.promoted ? regenSet.promoted : regenSet.base;
+        const regenRow = (row, name, [amount, seconds]) => row(name, `${amount} every ${seconds}s · ${fmt(perSecond([amount, seconds]) * 60)}/min`);
+        const row = (name, value) => `<div class="attr-row"><span class="attr-name">${name}</span><span class="attr-val">${value}</span></div>`;
+        document.getElementById('stat-breakdown').innerHTML = [
+            row('Health from levels', fmt(stats.base.hp)),
+            row(`Health gems (${gems} × ${STAT_GAINS[vocation].gem})`, '+' + fmt(stats.gemHp)),
+            row(`Gear ${hpPercent}% max HP`, '+' + fmt(stats.percentHp)),
+            row('Gear flat max HP', '+' + fmt(hpFlat)),
+            row('Capacity from levels', fmt(stats.base.cap) + ' oz'),
+            row(`Capacity scrolls (${capScrolls + capScrollsPlus} × ${STAT_GAINS[vocation].capScroll})`, '+' + fmt(stats.scrollCap) + ' oz'),
+            regenRow(row, 'Health regen', regen.hp),
+            regenRow(row, 'Mana regen', regen.mp),
+        ].join('');
+
+        document.getElementById('stat-milestones').innerHTML = STAT_MILESTONES
+            .filter(milestone => milestone !== level)
+            .map(milestone => {
+                const at = totalStats(vocation, milestone, rookExit, gear);
+                return row(`Level ${milestone}`, `${fmt(at.hp)} HP · ${fmt(at.mp)} MP · ${fmt(at.cap)} oz`);
+            }).join('');
+        document.getElementById('stat-results').style.display = '';
+    }
+
+    // Experience to level: TFS experience table, with the stage taken from the level each point of exp is gained at
+    const expForLevel = level => (50 * (level - 1) ** 3 - 150 * (level - 1) ** 2 + 400 * (level - 1)) / 3;
+
+    function applyExpPreset() {
+        const preset = document.getElementById('expPreset').value;
+        const stages = document.getElementById('expStages');
+        stages.value = preset;
+        if (!preset) stages.focus();
+    }
+
+    // "1.4x" or "1-50 4x, 51-100 3x, 251+ 1.6x" -> [{ min, max, rate }]
+    function parseStages(text) {
+        const parts = text.split(',').map(part => part.trim()).filter(Boolean);
+        if (parts.length === 1 && /^\d+(\.\d+)?x?$/i.test(parts[0])) return [{ min: 1, max: Infinity, rate: parseFloat(parts[0]) }];
+        const stages = parts.map(part => {
+            const match = part.match(/^(\d+)\s*(?:-\s*(\d+)|\+)\s*:?\s*(\d+(?:\.\d+)?)\s*x?$/i);
+            return match && { min: Number(match[1]), max: match[2] ? Number(match[2]) : Infinity, rate: Number(match[3]) };
+        });
+        return stages.every(stage => stage && stage.rate > 0 && stage.max >= stage.min) ? stages : null;
+    }
+
+    function calculateExp() {
+        ['expStages', 'expFrom', 'expTo', 'expBonus', 'expMonster'].forEach(clearError);
+        const stages = parseStages(document.getElementById('expStages').value);
+        if (!stages) { showError('expStages', 'Use a rate like 1.4x, or bands like 1-50 4x, 51-100 3x, 101+ 2x.'); return; }
+        const from = Number(document.getElementById('expFrom').value);
+        const to = Number(document.getElementById('expTo').value);
+        if (!Number.isInteger(from) || from < 1) { showError('expFrom', 'Enter a valid level.'); return; }
+        if (!Number.isInteger(to) || to <= from) { showError('expTo', 'Enter a level above your current one.'); return; }
+        if (to > 5000) { showError('expTo', 'Enter a level up to 5000.'); return; }
+        const bonus = Number(document.getElementById('expBonus').value || 0);
+        if (!Number.isFinite(bonus) || bonus < 0) { showError('expBonus', 'Enter 0 or more.'); return; }
+        const monsterText = document.getElementById('expMonster').value;
+        const monsterExp = monsterText === '' ? 0 : Number(monsterText);
+        if (!Number.isFinite(monsterExp) || monsterExp < 0) { showError('expMonster', 'Enter 0 or more.'); return; }
+
+        const stageFor = level => stages.find(stage => level >= stage.min && level <= stage.max);
+        let baseExp = 0;
+        const bands = new Map();
+        for (let level = from; level < to; level++) {
+            const stage = stageFor(level);
+            if (!stage) { showError('expStages', `No stage covers level ${level}.`); return; }
+            const needed = expForLevel(level + 1) - expForLevel(level);
+            const base = needed / (stage.rate * (1 + bonus / 100));
+            baseExp += base;
+            const band = bands.get(stage) || { from: level, to: level + 1, needed: 0, base: 0 };
+            band.to = level + 1;
+            band.needed += needed;
+            band.base += base;
+            bands.set(stage, band);
+        }
+
+        document.getElementById('resultExpNeeded').value = fmt(expForLevel(to) - expForLevel(from));
+        document.getElementById('resultExpBase').value = fmt(baseExp);
+        document.getElementById('resultExpKills').value = monsterExp > 0 ? fmt(Math.ceil(baseExp / monsterExp)) : 'Add monster exp';
+
+        const row = (name, value) => `<div class="attr-row"><span class="attr-name">${name}</span><span class="attr-val">${value}</span></div>`;
+        document.getElementById('exp-stages').innerHTML = [...bands].map(([stage, band]) =>
+            row(`Level ${band.from} → ${band.to} at ${stage.rate}x`, `${fmt(band.needed)} exp · ${fmt(band.base)} base` + (monsterExp > 0 ? ` · ${fmt(Math.ceil(band.base / monsterExp))} kills` : ''))
+        ).join('');
+        document.getElementById('exp-results').style.display = '';
+    }
+
+    // Magic level and skills: multipliers from vocations.xml, base costs from the stock TFS formulas
+    const SKILL_MULTIPLIERS = {
+        none:     { magic: 4.0, fist: 1.5, oneHanded: 2.0, twoHanded: 2.0, distance: 2.0, shield: 1.5, fishing: 1.1 },
+        knight:   { magic: 3.0, fist: 1.1, oneHanded: 1.1, twoHanded: 1.1, distance: 1.4, shield: 1.1, fishing: 1.1 },
+        paladin:  { magic: 1.4, fist: 1.2, oneHanded: 1.2, twoHanded: 1.2, distance: 1.1, shield: 1.2, fishing: 1.1 },
+        sorcerer: { magic: 1.1, fist: 1.5, oneHanded: 2.0, twoHanded: 2.0, distance: 2.0, shield: 1.5, fishing: 1.1 },
+        druid:    { magic: 1.1, fist: 1.5, oneHanded: 1.8, twoHanded: 1.8, distance: 1.8, shield: 1.5, fishing: 1.1 },
+    };
+    const SKILL_BASE_TRIES = { fist: 50, oneHanded: 50, twoHanded: 50, distance: 30, shield: 100, fishing: 20 };
+    const SKILL_SECONDS_PER_TRY = 2;
+    const formatHours = hours => hours >= 48 ? `${fmt(hours / 24)} days` : `${hours.toFixed(1)} hours`;
+
+    // mana to reach magicLevel from magicLevel - 1, rounded to 20 like the server
+    const manaForMagicLevel = (magicLevel, multiplier) => Math.round(1600 * multiplier ** (magicLevel - 1) / 20) * 20;
+    // tries to reach skillLevel from skillLevel - 1; skills start at 10
+    const triesForSkill = (skillLevel, skill, multiplier) => SKILL_BASE_TRIES[skill] * multiplier ** (skillLevel - 11);
+
+    function calculateSkill() {
+        ['skillRate', 'skillFrom', 'skillTo'].forEach(clearError);
+        const vocation = document.getElementById('skillVocation').value;
+        const skill = document.getElementById('skillType').value;
+        const isMagic = skill === 'magic';
+        const minLevel = isMagic ? 0 : 10;
+        const rate = Number(document.getElementById('skillRate').value);
+        const from = Number(document.getElementById('skillFrom').value);
+        const to = Number(document.getElementById('skillTo').value);
+        if (!Number.isFinite(rate) || rate <= 0) { showError('skillRate', 'Enter a rate above 0.'); return; }
+        if (!Number.isInteger(from) || from < minLevel) { showError('skillFrom', `Enter ${minLevel} or more.`); return; }
+        if (!Number.isInteger(to) || to <= from) { showError('skillTo', 'Enter a level above your current one.'); return; }
+        if (to - from > 200) { showError('skillTo', 'Enter at most 200 levels at a time.'); return; }
+
+        const multiplier = SKILL_MULTIPLIERS[vocation][skill];
+        const costFor = level => (isMagic ? manaForMagicLevel(level, multiplier) : triesForSkill(level, skill, multiplier)) / rate;
+        const row = (name, value) => `<div class="attr-row"><span class="attr-name">${name}</span><span class="attr-val">${value}</span></div>`;
+        const unit = isMagic ? 'mana' : 'tries';
+        let total = 0;
+        const rows = [];
+        for (let level = from + 1; level <= to; level++) {
+            const cost = costFor(level);
+            total += cost;
+            rows.push(row(`${level - 1} → ${level}`, `${fmt(cost)} ${unit}`));
+        }
+
+        const regenSet = STAT_REGEN[vocation];
+        const manaPerSecond = perSecond((regenSet.promoted || regenSet.base).mp);
+        document.getElementById('labelSkillNeeded').textContent = isMagic ? 'Mana To Spend' : 'Skill Tries';
+        document.getElementById('resultSkillNeeded').value = fmt(total);
+        document.getElementById('labelSkillTime').textContent = isMagic ? 'Time On Natural Regen' : 'Time At 1 Try / 2s';
+        document.getElementById('resultSkillTime').value = formatHours(total / (isMagic ? manaPerSecond : 1 / SKILL_SECONDS_PER_TRY) / 3600);
+        document.getElementById('skill-levels').innerHTML = rows.join('');
+        document.getElementById('skill-notes').textContent = isMagic
+            ? `Mana already includes the ${rate}x rate. The regen time uses promoted natural regen only; potions and rune-making speed it up.`
+            : `Tries already include the ${rate}x rate. Melee and distance gain one try per attack (every 2s), shielding one per blocked hit.`;
+        document.getElementById('skill-results').style.display = '';
+    }
+
+    // Experience sharing: the lowest member must be at least ceil(highest × 2/3)
+    const minShareLevel = highest => Math.ceil(highest * 2 / 3);
+    const maxShareLevel = lowest => Math.floor(lowest * 3 / 2);
+
+    function calculateShare() {
+        ['shareLevel', 'shareParty'].forEach(clearError);
+        const level = Number(document.getElementById('shareLevel').value);
+        if (!Number.isInteger(level) || level < 1) { showError('shareLevel', 'Enter a valid level.'); return; }
+
+        const partyText = document.getElementById('shareParty').value.trim();
+        const party = partyText ? partyText.split(/[\s,]+/).filter(Boolean).map(Number) : [];
+        if (party.some(member => !Number.isInteger(member) || member < 1)) { showError('shareParty', 'Use whole levels separated by commas.'); return; }
+
+        document.getElementById('resultShareRange').value = `${fmt(minShareLevel(level))} — ${fmt(maxShareLevel(level))}`;
+
+        const row = (name, value, ok) => `<div class="attr-row"><span class="attr-name">${name}</span><span class="attr-val" style="color:${ok ? 'var(--white)' : 'var(--red)'}">${value}</span></div>`;
+        const members = [level, ...party];
+        const highest = Math.max(...members);
+        const floor = minShareLevel(highest);
+        document.getElementById('share-party').innerHTML = party.length === 0 ? '' : [
+            row(`Party floor (highest ${fmt(highest)})`, `level ${fmt(floor)}+`, true),
+            ...members.map((member, i) => row(i === 0 ? `You (${fmt(member)})` : `Member ${i} (${fmt(member)})`,
+                member >= floor ? 'Shares' : `Too low — needs ${fmt(floor)}`, member >= floor)),
+        ].join('');
+        document.getElementById('share-results').style.display = '';
     }
 
     const attributes = {
@@ -555,13 +1173,27 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
     }
 
     // Theme
+    // localStorage throws when storage is blocked (private modes, embedded previews), so never let it stop the page
+    const storage = {
+        get: key => { try { return localStorage.getItem(key); } catch { return null; } },
+        set: (key, value) => { try { localStorage.setItem(key, value); } catch {} },
+    };
+
     function setTheme(name) {
         document.body.dataset.theme = name === 'classic' ? '' : name;
         document.getElementById('themeSelect').value = name;
-        localStorage.setItem('soe-theme', name);
+        storage.set('soe-theme', name);
     }
-    const savedTheme = localStorage.getItem('soe-theme');
+    const savedTheme = storage.get('soe-theme');
     if (savedTheme) setTheme(savedTheme);
+
+    function showCalculator(name) {
+        document.querySelectorAll('.panel[data-calc]').forEach(panel => panel.style.display = panel.dataset.calc === name ? '' : 'none');
+        document.getElementById('calcSelect').value = name;
+        storage.set('soe-calculator', name);
+    }
+    const savedCalculator = storage.get('soe-calculator');
+    if (savedCalculator && document.querySelector(`.panel[data-calc="${savedCalculator}"]`)) showCalculator(savedCalculator);
 
     // Enter key triggers the active calculator
     document.addEventListener('keydown', e => {
@@ -569,6 +1201,11 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
         const id = document.activeElement?.id;
         if (id === 'rarityitemlevel' || id === 'rarity') sum1();
         if (id === 'itemlevel' || id === 'typeSelect') changeType();
+        if (id && id.startsWith('upgrade')) planUpgrade();
+        if (id && id.startsWith('stat')) calculateStats();
+        if (id && id.startsWith('share')) calculateShare();
+        if (id && id.startsWith('exp')) calculateExp();
+        if (id && id.startsWith('skill')) calculateSkill();
     });
 </script>
 
