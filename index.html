@@ -712,19 +712,20 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
         const rarity = document.getElementById('rarity').value;
         const ilvl = Number(document.getElementById('rarityitemlevel').value);
         if (!Number.isFinite(ilvl) || ilvl <= 0) { showError('rarityitemlevel', 'Enter a valid item level.'); return; }
+        // base is the common item level; checked in game: rare 72 -> epic 113 -> legendary 159, rare 24 -> mythic 84
         let base;
         switch (rarity) {
             case 'common':    base = ilvl; break;
-            case 'rare':      base = (ilvl - 5) / 2; break;
-            case 'epic':      base = (ilvl - 15) / 3; break;
-            case 'legendary': base = (ilvl - 30) / 4; break;
-            case 'mythic':    base = (ilvl - 50) / 4.5; break;
+            case 'rare':      base = ilvl / 2; break;
+            case 'epic':      base = (ilvl - 5) / 3; break;
+            case 'legendary': base = (ilvl - 15) / 4; break;
+            case 'mythic':    base = (ilvl - 30) / 4.5; break;
         }
         if (!Number.isFinite(base) || base <= 0) { showError('rarityitemlevel', 'Invalid level for this rarity.'); return; }
-        const rare      = Math.floor(base * 2 + 5);
-        const epic      = Math.floor(base * 3 + 15);
-        const legendary = Math.floor(base * 4 + 30);
-        const mythic    = Math.floor(base * 4.5 + 50);
+        const rare      = Math.floor(base * 2);
+        const epic      = Math.floor(base * 3 + 5);
+        const legendary = Math.floor(base * 4 + 15);
+        const mythic    = Math.floor(base * 4.5 + 30);
         const tierOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
         const inputTier = tierOrder.indexOf(rarity);
         const show = tier => { const el = document.getElementById('row-' + tier); if (el) el.style.display = tierOrder.indexOf(tier) > inputTier ? '' : 'none'; };
