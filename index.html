@@ -341,15 +341,27 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             <div class="info-icon">?</div>
         </div>
         <div class="panel-body">
-            <div class="input-group">
-                <span class="label">Rarity</span>
-                <select id="rarity">
-                    <option value="common">Common</option>
-                    <option value="rare">Rare</option>
-                    <option value="epic">Epic</option>
-                    <option value="legendary">Legendary</option>
-                    <option value="mythic">Mythic</option>
-                </select>
+            <div class="input-row">
+                <div class="input-group">
+                    <span class="label">Rarity</span>
+                    <select id="rarity">
+                        <option value="common">Common</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic">Epic</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="mythic">Mythic</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="label">Obtained As</span>
+                    <select id="obtainedRarity">
+                        <option value="common">Common</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic">Epic</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="mythic">Mythic</option>
+                    </select>
+                </div>
             </div>
             <div class="input-group">
                 <span class="label">Current Item Level</span>
@@ -713,27 +725,28 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
         const rarity = document.getElementById('rarity').value;
         const ilvl = Number(document.getElementById('rarityitemlevel').value);
         if (!Number.isFinite(ilvl) || ilvl <= 0) { showError('rarityitemlevel', 'Enter a valid item level.'); return; }
-        // base is the common item level; checked in game: rare 72 -> epic 113 -> legendary 159, rare 24 -> mythic 84
-        let base;
-        switch (rarity) {
-            case 'common':    base = ilvl; break;
-            case 'rare':      base = ilvl / 2; break;
-            case 'epic':      base = (ilvl - 5) / 3; break;
-            case 'legendary': base = (ilvl - 15) / 4; break;
-            case 'mythic':    base = (ilvl - 30) / 4.5; break;
-        }
-        if (!Number.isFinite(base) || base <= 0) { showError('rarityitemlevel', 'Invalid level for this rarity.'); return; }
-        const rare      = Math.floor(base * 2);
-        const epic      = Math.floor(base * 3 + 5);
-        const legendary = Math.floor(base * 4 + 15);
-        const mythic    = Math.floor(base * 4.5 + 30);
+        // each rarity upgrade adds the common level again (half for mythic) plus 5 per upgrade done so far,
+        // counted from the rarity the item was obtained at, floored each step. checked in game:
+        // common 37 -> 79 -> 126 -> 178 -> 216, rare 72 -> 113 -> 159 -> 192, rare 53 -> 84 -> 120 -> 148
+        const multipliers = { common: 1, rare: 2, epic: 3, legendary: 4, mythic: 4.5 };
         const tierOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
         const inputTier = tierOrder.indexOf(rarity);
+        const obtainedTier = tierOrder.indexOf(document.getElementById('obtainedRarity').value);
+        if (obtainedTier > inputTier) { showError('rarityitemlevel', "An item can't be obtained at a higher rarity than it has now."); return; }
+        const upgradesDone = inputTier - obtainedTier;
+        const common = (ilvl - 5 * upgradesDone * (upgradesDone + 1) / 2) / multipliers[rarity];
+        if (common <= 0) { showError('rarityitemlevel', 'Invalid level for this rarity.'); return; }
+        const levels = { [rarity]: ilvl };
+        for (let i = inputTier + 1; i < tierOrder.length; i++) {
+            const gain = common * (multipliers[tierOrder[i]] - multipliers[tierOrder[i - 1]]) + 5 * (i - obtainedTier);
+            levels[tierOrder[i]] = Math.floor(levels[tierOrder[i - 1]] + gain);
+        }
+        const { rare, epic, legendary, mythic } = levels;
         const show = tier => { const el = document.getElementById('row-' + tier); if (el) el.style.display = tierOrder.indexOf(tier) > inputTier ? '' : 'none'; };
         show('rare'); show('epic'); show('legendary'); show('mythic');
-        document.getElementById('resultRare').value = rare;
-        document.getElementById('resultEpic').value = epic;
-        document.getElementById('result1').value    = legendary;
+        document.getElementById('resultRare').value = rare ?? '';
+        document.getElementById('resultEpic').value = epic ?? '';
+        document.getElementById('result1').value    = legendary ?? '';
         document.getElementById('result4').value    = mythic;
         document.getElementById('result2').value    = mythic + 60;
         document.getElementById('result3').value    = Math.min(439, mythic + 110);
