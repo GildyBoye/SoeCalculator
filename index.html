@@ -92,6 +92,8 @@ header h1 span{color:var(--text-dim);font-weight:400;font-size:.8rem;margin-left
 
 /* INPUTS */
 .input-group { margin-bottom: 16px; position: relative; }
+.check-row { display: flex; align-items: center; gap: 8px; margin: -4px 0 16px; font-size: 0.85rem; color: var(--text-dim); cursor: pointer; }
+.check-row input { accent-color: var(--gold); width: 15px; height: 15px; margin: 0; cursor: pointer; }
 .field-error {
     display: block;
     font-size: 0.7rem;
@@ -341,27 +343,26 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             <div class="info-icon">?</div>
         </div>
         <div class="panel-body">
-            <div class="input-row">
-                <div class="input-group">
-                    <span class="label">Rarity</span>
-                    <select id="rarity">
-                        <option value="common">Common</option>
-                        <option value="rare">Rare</option>
-                        <option value="epic">Epic</option>
-                        <option value="legendary">Legendary</option>
-                        <option value="mythic">Mythic</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <span class="label">Obtained As</span>
-                    <select id="obtainedRarity">
-                        <option value="common">Common</option>
-                        <option value="rare">Rare</option>
-                        <option value="epic">Epic</option>
-                        <option value="legendary">Legendary</option>
-                        <option value="mythic">Mythic</option>
-                    </select>
-                </div>
+            <div class="input-group">
+                <span class="label">Rarity</span>
+                <select id="rarity">
+                    <option value="common">Common</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic">Epic</option>
+                    <option value="legendary">Legendary</option>
+                    <option value="mythic">Mythic</option>
+                </select>
+            </div>
+            <label class="check-row"><input type="checkbox" id="rarityUpgraded"> I've already upgraded its rarity</label>
+            <div class="input-group" id="row-obtainedRarity" style="display:none">
+                <span class="label">Rarity It Dropped As</span>
+                <select id="obtainedRarity">
+                    <option value="common">Common</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic">Epic</option>
+                    <option value="legendary">Legendary</option>
+                    <option value="mythic">Mythic</option>
+                </select>
             </div>
             <div class="input-group">
                 <span class="label">Current Item Level</span>
@@ -731,8 +732,9 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
         const multipliers = { common: 1, rare: 2, epic: 3, legendary: 4, mythic: 4.5 };
         const tierOrder = ['common', 'rare', 'epic', 'legendary', 'mythic'];
         const inputTier = tierOrder.indexOf(rarity);
-        const obtainedTier = tierOrder.indexOf(document.getElementById('obtainedRarity').value);
-        if (obtainedTier > inputTier) { showError('rarityitemlevel', "An item can't be obtained at a higher rarity than it has now."); return; }
+        const upgraded = document.getElementById('rarityUpgraded').checked;
+        const obtainedTier = upgraded ? tierOrder.indexOf(document.getElementById('obtainedRarity').value) : inputTier;
+        if (obtainedTier > inputTier) { showError('rarityitemlevel', "It can't have dropped at a higher rarity than it has now."); return; }
         const upgradesDone = inputTier - obtainedTier;
         const common = (ilvl - 5 * upgradesDone * (upgradesDone + 1) / 2) / multipliers[rarity];
         if (common <= 0) { showError('rarityitemlevel', 'Invalid level for this rarity.'); return; }
@@ -1210,11 +1212,16 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
     const savedCalculator = storage.get('soe-calculator');
     if (savedCalculator && document.querySelector(`.panel[data-calc="${savedCalculator}"]`)) showCalculator(savedCalculator);
 
+    // items are assumed to be as they dropped unless the user says they've upgraded the rarity themselves
+    document.getElementById('rarityUpgraded').addEventListener('change', e => {
+        document.getElementById('row-obtainedRarity').style.display = e.target.checked ? '' : 'none';
+    });
+
     // Enter key triggers the active calculator
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         const id = document.activeElement?.id;
-        if (id === 'rarityitemlevel' || id === 'rarity') sum1();
+        if (id === 'rarityitemlevel' || id === 'rarity' || id === 'obtainedRarity') sum1();
         if (id === 'itemlevel' || id === 'typeSelect') changeType();
         if (id && id.startsWith('upgrade')) planUpgrade();
         if (id && id.startsWith('stat')) calculateStats();
