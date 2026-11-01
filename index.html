@@ -280,6 +280,7 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
 .anim-toggle.off { background: var(--border); }
 .anim-toggle.on::after  { left: 16px; }
 .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; align-items: end; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; align-items: end; }
 /* CALCULATOR SWITCH */
 .calc-switch {
   display: flex;
@@ -356,29 +357,29 @@ body[data-theme="purple"] { --gold:#9a4bc8; --gold2:#ba6ae2; --gold-dim:#5a287a;
             </div>
             <button class="btn-gold" onclick="sum1()">Calculate Item Level</button>
 
-            <div class="result-box" id="ilvl-results" style="display:none">
+            <div class="result-box result-grid" id="ilvl-results" style="display:none">
                 <div class="input-group" id="row-rare">
-                    <span class="label">Rare Item Level</span>
+                    <span class="label">Rare</span>
                     <input type="text" id="resultRare" readonly placeholder="—">
                 </div>
                 <div class="input-group" id="row-epic">
-                    <span class="label">Epic Item Level</span>
+                    <span class="label">Epic</span>
                     <input type="text" id="resultEpic" readonly placeholder="—">
                 </div>
                 <div class="input-group" id="row-legendary">
-                    <span class="label">Legendary Item Level</span>
+                    <span class="label">Legendary</span>
                     <input type="text" id="result1" readonly placeholder="—">
                 </div>
                 <div class="input-group" id="row-mythic">
-                    <span class="label">Mythic Item Level</span>
+                    <span class="label">Mythic</span>
                     <input type="text" id="result4" readonly placeholder="—">
                 </div>
-                <div class="input-group">
-                    <span class="label">Accessories Max (+6)</span>
+                <div class="input-group" style="grid-column:1">
+                    <span class="label">Accessories +6</span>
                     <input type="text" id="result2" readonly placeholder="—">
                 </div>
                 <div class="input-group">
-                    <span class="label">Weapons/Armor Max (+11)</span>
+                    <span class="label">Weapons/Armor +11</span>
                     <input type="text" id="result3" readonly placeholder="—">
                 </div>
             </div>
